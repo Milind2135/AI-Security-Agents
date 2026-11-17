@@ -56,6 +56,42 @@ These rules are built into every agent file (see [`AGENTS.md`](AGENTS.md) for th
 
 ## Running the agents
 
+### Getting help: `?` or `help`
+
+Not sure what an agent needs? Select the agent, then send **`?`** or **`help`** on its own. It replies with a short **usage card**: what it does, the inputs it needs, optional settings, copy-and-edit examples, and what it does *not* do (with the agent to use instead). It does no research and uses none of its budget.
+
+| Runtime | How |
+|---|---|
+| **Claude Code** | Type `@`, pick the agent (e.g. **vm-triage (agent)**), then `?` → `@vm-triage ?` |
+| **GitHub Copilot** (VS Code) | Choose the agent in the Copilot Chat **agent dropdown**, then send `?` or `help` |
+
+Also accepted: `--help`, `usage`, "how do I use this", or an empty message. A real request that happens to contain the word help — e.g. "help me triage CVE-2024-3400" — runs normally.
+
+Example — `@vm-triage ?` returns:
+
+```text
+vm-triage v5.4 | help
+
+What I do: Research ONE public CVE and produce a 26-section intelligence report —
+KEV, EPSS, CVSS, exploitation status, IOCs, detections, remediation. Stage 1 of the
+vulnerability pipeline.
+
+I need (required):
+- one CVE ID, format CVE-YYYY-NNNNN
+
+Optional:
+- depth: standard (default) | thorough (more research budget)
+
+Example — copy, edit, send:
+    CVE-2024-3400
+    CVE-2021-44228  depth: thorough
+
+I do NOT:
+- say whether YOUR systems are affected, exposed, or how urgent it is -> vulnerability-hunt (give it my output)
+- scan, patch or touch any system — public intelligence only, read-only
+...
+```
+
 ### Claude Code (tested runtime)
 
 1. Clone the repository and open the folder in Claude Code:
@@ -72,7 +108,7 @@ These rules are built into every agent file (see [`AGENTS.md`](AGENTS.md) for th
    ```text
    Use the soc-analyst subagent. alert: tests/soc-analyst/fixtures/01-auth-signin.json
    ```
-3. Type `?` after any agent name to see its usage card (inputs, options, examples).
+3. Not sure what to type? Send `@<agent-name> ?` to see its usage card (see [Getting help](#getting-help--or-help)).
 
 The files in [`.claude/agents/`](.claude/agents) are thin entry points: each one tells Claude Code to read the matching instruction file in `.github/agents/` and limits the agent to read-only tools (Read, Grep, Glob, WebSearch, WebFetch). Equivalent entry points for **OpenAI Codex** are in [`.codex/agents/`](.codex/agents).
 
@@ -80,7 +116,7 @@ The files in [`.claude/agents/`](.claude/agents) are thin entry points: each one
 
 1. Open the repository folder in VS Code with an up-to-date **GitHub Copilot Chat** extension.
 2. In Copilot Chat, open the **agent dropdown** and pick an agent (for example **vm-triage**). Copilot loads the files in `.github/agents/` directly.
-3. Enter the agent's input, e.g. `CVE: CVE-2024-3400`.
+3. Enter the agent's input, e.g. `CVE: CVE-2024-3400` — or send `?` first to see what it needs.
 4. Approve page fetches when asked; reject anything that would edit files or run commands.
 
 Requirements and checks (custom-agent support, model choice, network access to NVD / CISA / FIRST, optional web search through an approved MCP server) are in **[docs/COPILOT-MIGRATION.md](docs/COPILOT-MIGRATION.md)**.
