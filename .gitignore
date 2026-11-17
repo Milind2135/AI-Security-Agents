@@ -28,7 +28,6 @@ bld/
 Thumbs.db
 *.env
 *.local
-tools/vm_triage/.cache/
 __pycache__/
 
 
@@ -42,8 +41,6 @@ incidents/
 # Real threat-model outputs describe internal architecture: never publish (repo is public)
 docs/threat-models/
 
-# kept locally only, removed from GitHub 2026-11-17
+# Local-only agents (not published)
 .github/agents/risk-analyst.agent.md
-
-# kept locally only, removed from GitHub 2026-11-17
 .github/agents/detection-engineer.agent.md

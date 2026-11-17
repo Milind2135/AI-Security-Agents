@@ -27,7 +27,7 @@ Turns a saved **threat-modeler** report into shareable files. Plain Python, no A
    ```powershell
    winget install --id JohnMacFarlane.Pandoc
    ```
-At the office, installing Node.js, npm packages or pandoc may need IT approval.
+In a managed work environment, installing Node.js, npm packages or pandoc may need IT approval.
 
 ## Use
 1. Copy the agent's **complete report** (from `threat-modeler v1.3 | result` to `Validation: NOT RUN (chat mode).`) into a file, e.g. `docs\threat-models\orders-api\2026-11-17\report.md`.
