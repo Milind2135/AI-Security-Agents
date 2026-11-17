@@ -1,0 +1,3 @@
+{"_note": "SYNTHETIC TEST DATA - CSPM-style alert, field names approximate",
+ "id": "CSPM-ALERT-5521", "createdAt": "2026-11-16T10:05:00Z", "severity": "HIGH",
+ "title": "Security group allows inbound 0.0.0.0/0 on port 443", "resource": {"type": "SecurityGroup", "name": "alb-public-sg", "account": "111122223333"}}

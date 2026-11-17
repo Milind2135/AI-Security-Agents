@@ -1,0 +1,49 @@
+# ==========================================
+# Visual Studio & Local IDE Caches
+# ==========================================
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ==========================================
+# GitHub Copilot & Local AI Cache
+# ==========================================
+.copilot/
+.github/copilot-history/
+*.log
+
+# ==========================================
+# Operating System & Environment
+# ==========================================
+.DS_Store
+Thumbs.db
+*.env
+*.local
+tools/vm_triage/.cache/
+__pycache__/
+
+
+# ==========================================
+# Local-only / private (never publish)
+# ==========================================
+incidents/
+.vscode/mcp.json
+**/.cache/
+
+# Real threat-model outputs describe internal architecture: never publish (repo is public)
+docs/threat-models/
+
+# kept locally only, removed from GitHub 2026-11-17
+.github/agents/risk-analyst.agent.md
+
+# kept locally only, removed from GitHub 2026-11-17
+.github/agents/detection-engineer.agent.md

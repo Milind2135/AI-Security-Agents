@@ -1,0 +1,6 @@
+{"_note": "SYNTHETIC TEST DATA - service control policy attached to the OU containing account 444455556666",
+ "Version": "2012-10-17",
+ "Statement": [
+  {"Sid": "DenyKeyCreationExceptAdmins", "Effect": "Deny", "Action": ["iam:CreateAccessKey", "iam:CreateLoginProfile"], "Resource": "*",
+   "Condition": {"ArnNotLike": {"aws:PrincipalArn": "arn:aws:iam::*:role/ops-admin"}}}
+ ]}

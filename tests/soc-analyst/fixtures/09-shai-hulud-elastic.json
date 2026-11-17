@@ -1,0 +1,71 @@
+{
+  "_note": "SYNTHETIC TEST DATA - second alert for the same incident (see 09-shai-hulud-crowdstrike.json). Modelled on the general shape of an Elastic Security alert using ECS field names, raised by a correlation rule over code-hosting and package-registry audit logs; not an exact export. Every name, IP, hash and token is fake.",
+  "@timestamp": "2026-11-03T11:58:03.410Z",
+  "kibana.alert.rule.name": "Developer token used for repo creation, workflow push and package publish within 15 minutes",
+  "kibana.alert.rule.type": "eql",
+  "kibana.alert.severity": "critical",
+  "kibana.alert.risk_score": 95,
+  "kibana.alert.workflow_status": "open",
+  "event.kind": "signal",
+  "user.name": "erin-example",
+  "user.email": "erin@example.com",
+  "source.ip": "192.0.2.40",
+  "kibana.alert.building_block_events": [
+    {
+      "@timestamp": "2026-11-03T11:42:16Z",
+      "event.dataset": "github.audit",
+      "event.action": "repo.create",
+      "github.repo": "erin-example/Shai-Hulud",
+      "github.visibility": "public",
+      "github.repo_description": "Shai-Hulud",
+      "github.files_added": ["data.json"],
+      "github.data_json_size_bytes": 51180,
+      "token_type": "personal access token (classic)",
+      "source.ip": "192.0.2.40"
+    },
+    {
+      "@timestamp": "2026-11-03T11:42:31Z",
+      "event.dataset": "github.audit",
+      "event.action": "git.push",
+      "github.repo": "example-org/payments-web",
+      "github.branch": "shai-hulud",
+      "github.files_added": [".github/workflows/shai-hulud-workflow.yml"],
+      "workflow_summary": "on: push; job sends all repository secrets (toJSON(secrets)) in an HTTP POST to hooks.collector.example",
+      "source.ip": "192.0.2.40"
+    },
+    {
+      "@timestamp": "2026-11-03T11:42:44Z",
+      "event.dataset": "github.audit",
+      "event.action": "workflows.completed_workflow_run",
+      "github.repo": "example-org/payments-web",
+      "github.workflow": "shai-hulud-workflow.yml",
+      "github.run_id": 900000001,
+      "github.conclusion": "success"
+    },
+    {
+      "@timestamp": "2026-11-03T11:44:02Z",
+      "event.dataset": "npm.audit",
+      "event.action": "package.publish",
+      "npm.package": "@example-org/ui-buttons",
+      "npm.version": "3.1.8",
+      "npm.previous_version": "3.1.7",
+      "npm.change": "adds postinstall: node bundle.js; bundle.js sha256 0000000000000000000000000000000000000000000000000000000000000501",
+      "npm.publisher": "erin-example",
+      "source.ip": "192.0.2.40"
+    },
+    {
+      "@timestamp": "2026-11-03T11:44:19Z",
+      "event.dataset": "npm.audit",
+      "event.action": "package.publish",
+      "npm.package": "@example-org/date-utils",
+      "npm.version": "1.9.4",
+      "npm.previous_version": "1.9.3",
+      "npm.change": "adds postinstall: node bundle.js; same bundle.js hash",
+      "npm.publisher": "erin-example",
+      "source.ip": "192.0.2.40"
+    }
+  ],
+  "related.user": ["erin-example"],
+  "related.ip": ["192.0.2.40"],
+  "_analyst_note": "No downloads data for the two new package versions was available at export time. No change request exists for any of these actions. GitHub organisation secrets for payments-web include a cloud deploy key and an npm publish token."
+}

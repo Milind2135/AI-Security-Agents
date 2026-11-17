@@ -1,0 +1,8 @@
+{"_note": "SYNTHETIC TEST DATA - modelled on the general shape of a GuardDuty finding; field names approximate",
+ "id": "gd-0000000000000001", "accountId": "111122223333", "region": "eu-west-1",
+ "type": "UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS",
+ "severity": 8.0, "createdAt": "2026-11-16T22:41:05Z",
+ "title": "Credentials for the EC2 instance role app-role were used from a remote AWS account or external IP address.",
+ "resource": {"accessKeyDetails": {"principalId": "AROAEXAMPLEAPPROLE:i-0web01", "userName": "app-role", "userType": "AssumedRole"},
+              "instanceDetails": {"instanceId": "i-0web01", "tags": [{"key": "Name", "value": "web-01"}]}},
+ "service": {"action": {"awsApiCallAction": {"api": "ListBuckets", "remoteIpDetails": {"ipAddressV4": "203.0.113.66", "country": {"countryName": "Unknown"}}}}}}

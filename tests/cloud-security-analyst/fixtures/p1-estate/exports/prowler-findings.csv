@@ -1,0 +1,5 @@
+STATUS,SEVERITY,SERVICE_NAME,CHECK_ID,CHECK_TITLE,RESOURCE_ID,REGION,STATUS_EXTENDED
+FAIL,critical,s3,s3_bucket_public_access,Ensure S3 buckets are not publicly accessible,example-marketing-assets,eu-west-1,Bucket ACL grants public read
+FAIL,high,ec2,ec2_securitygroup_allow_ingress_from_internet_to_any_port,Security group allows ingress from 0.0.0.0/0,web-sg,eu-west-1,Port 8080 open to the internet
+FAIL,medium,cloudtrail,cloudtrail_multi_region_enabled,Ensure CloudTrail is enabled in all regions,main-trail,eu-west-1,Trail is single-region
+FAIL,medium,guardduty,guardduty_is_enabled,Ensure GuardDuty is enabled,111122223333,eu-west-1,GuardDuty detector not found

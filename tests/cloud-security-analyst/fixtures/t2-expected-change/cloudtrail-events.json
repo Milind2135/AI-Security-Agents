@@ -1,0 +1,6 @@
+{"_note": "SYNTHETIC TEST DATA",
+ "Records": [
+  {"eventTime": "2026-11-16T10:02:14Z", "eventName": "AuthorizeSecurityGroupIngress", "eventSource": "ec2.amazonaws.com", "sourceIPAddress": "198.51.100.12",
+   "userIdentity": {"type": "AssumedRole", "arn": "arn:aws:sts::111122223333:assumed-role/github-deploy/run-8812"},
+   "requestParameters": {"groupId": "alb-public-sg", "ipPermissions": {"fromPort": 443, "toPort": 443, "cidr": "0.0.0.0/0"}}, "errorCode": null}
+ ]}

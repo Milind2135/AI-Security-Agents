@@ -1,0 +1,13 @@
+name: deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: AKIA-EXAMPLE-NOT-A-REAL-KEY
+      AWS_SECRET_ACCESS_KEY: example-secret-value-NOT-REAL
+    steps:
+      - uses: actions/checkout@v4
+      - run: terraform init && terraform apply -auto-approve
