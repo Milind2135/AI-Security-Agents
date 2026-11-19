@@ -105,15 +105,17 @@ Every setup ends up following the **same instruction file**, `.github/agents/<na
 
 Nothing needs to be installed for the agents themselves: you only need one of the [supported setups](#supported-setups). What differs is the access each agent needs while it runs.
 
-| Agent | Web access | Notes |
-|---|---|---|
-| vm-triage | Required | Fetches public sources (NVD, CISA KEV, FIRST EPSS, vendor advisories) |
-| threat-intel-analyst | Required | Public sources only; internal identifiers are never looked up |
-| vulnerability-hunt | Optional | Vendor advisories for fix details; works from supplied files otherwise |
-| soc-analyst | Optional | Lookups of public IPs and domains only |
-| cloud-security-analyst | Optional | Public references; analysis uses the supplied files |
-| threat-modeler | Optional | Framework references; analysis uses the supplied code and documents |
-| team-manager | None | Reads only the request and the reports you give it |
+| Agent | Accepted input | Web access | Notes |
+|---|---|---|---|
+| vm-triage | One CVE ID typed in the prompt (no files) | Required | Fetches public sources (NVD, CISA KEV, FIRST EPSS, vendor advisories) |
+| threat-intel-analyst | A threat-actor or campaign name, or a list of indicators (IPs, domains, hashes, package names) typed in the prompt; optional vm-triage JSON | Required | Public sources only; internal identifiers are never looked up |
+| vulnerability-hunt | vm-triage JSON **plus** an inventory: SBOM (CycloneDX/SPDX JSON), scanner or CMDB export (CSV/JSON), package or image lists; optional exposure lists, firewall/security-group rules, controls notes (CSV, JSON, Markdown), source-code folder | Optional | Vendor advisories for fix details; works from supplied files otherwise |
+| soc-analyst | Alert JSON, log excerpts (JSON, CSV, text), email headers or `.eml`, EDR process tree; optional context notes (Markdown/text) | Optional | Lookups of public IPs and domains only |
+| cloud-security-analyst | **Posture:** IaC (Terraform, CloudFormation, Bicep/ARM, Kubernetes, Helm), CSPM or scanner exports (CSV/JSON), IAM policy JSON. **Triage:** cloud alert JSON plus audit events (CloudTrail, Azure Activity, GCP Audit Logs) | Optional | Public references; analysis uses the supplied files |
+| threat-modeler | A folder of system material: design documents (PDF, Markdown, text), diagrams (PNG, JPG), source code, IaC, API specs (OpenAPI/YAML/JSON), pipeline files; optional filled intake form (Markdown) | Optional | Framework references; analysis uses the supplied code and documents |
+| team-manager | A request in plain words with file paths; optional agent reports or their JSON to combine | None | Reads only the request and the reports you give it |
+
+**File formats:** give files by **path** inside the project folder. Files attached in the chat box reach only the main session, not the agent. Text-based formats (JSON, CSV, YAML, Markdown, code, `.eml`), PDF and PNG/JPG images can be read directly. Save **Word (.docx)**, **Excel (.xlsx)**, **Visio** and **draw.io** files as PDF, CSV or PNG first. Use only synthetic data or data your organisation allows for the AI service you use.
 
 Approve page-fetch prompts when an agent asks. In Copilot, page fetch works out of the box; web search needs an approved search tool (see [docs/COPILOT-MIGRATION.md](docs/COPILOT-MIGRATION.md)).
 
