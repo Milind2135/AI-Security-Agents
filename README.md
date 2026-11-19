@@ -60,15 +60,46 @@ These rules are built into every agent file (see [`AGENTS.md`](AGENTS.md) for th
 
 | Setup | Status | How the agents load |
 |---|---|---|
-| **VS Code + Claude Code extension** | ✅ Tested (primary) | Each file in [`.claude/agents/`](.claude/agents) points Claude Code to the full instructions in `.github/agents/` |
-| **Claude Code CLI** (terminal, including VS Code's terminal) | Same files as above, not tested separately | Same as above |
-| **VS Code + GitHub Copilot Chat** | ⚠️ Supported, not yet tested | Copilot reads [`.github/agents/`](.github/agents) directly; pick the agent in the Copilot Chat agent dropdown |
-| **OpenAI Codex** | ⚠️ Entry files included, not tested | [`.codex/agents/`](.codex/agents) |
-| **Cline** (VS Code extension) | Legacy, no longer maintained | Start prompt in each agent's *Runtime notes* section |
+| **VS Code + Claude Code extension** | ✅ Tested (primary) | A short entry file per agent in [`.claude/agents/`](.claude/agents) tells Claude Code to read the full instructions in [`.github/agents/`](.github/agents) ([details](#claude-code-extension-or-cli)) |
+| **Claude Code CLI** (terminal, including VS Code's terminal) | Same files as above, not tested separately | Same as above ([details](#claude-code-extension-or-cli)) |
+| **VS Code + GitHub Copilot Chat** | ⚠️ Supported, not yet tested | Copilot reads each `.agent.md` file in [`.github/agents/`](.github/agents) directly and lists it in the agent dropdown ([details](#github-copilot-chat-in-vs-code)) |
+| **OpenAI Codex** | ⚠️ Entry files included, not tested | A TOML entry file per agent in [`.codex/agents/`](.codex/agents) points Codex to the same instructions ([details](#openai-codex)) |
+| **Cline** (VS Code extension) | Legacy, no longer maintained | No automatic loading; you paste a start prompt that tells Cline to read the agent file ([details](#cline-legacy)) |
 
 - **One instruction file per agent** serves every setup, so there are no separate Claude and Copilot versions to keep in sync.
 - **Copilot can use different models** (GPT, Claude, Gemini and others). The agents are written to be model-neutral; results are judged against the [golden tests](#tests), not identical wording.
 - **team-manager `mode: run`** (calling the other agents automatically) needs a setup that lets one agent call another, currently Copilot, and has not been tested yet. In Claude Code, team-manager plans the work, and you run each step's prompt yourself.
+
+#### How the agents load, in detail
+
+Every setup ends up following the **same instruction file**, `.github/agents/<name>.agent.md`. Only the way each tool finds that file differs.
+
+<a id="claude-code-extension-or-cli"></a>
+**Claude Code (VS Code extension or CLI)**
+1. When you open the repository folder, Claude Code finds the project subagents in `.claude/agents/`. Each one is a short Markdown file with a header (`name`, `description`, `tools`).
+2. You start an agent by typing `@` and picking it (e.g. **vm-triage (agent)**), or by asking "Use the vm-triage subagent for …". Claude Code may also choose a subagent on its own when your request matches its `description`.
+3. The subagent runs in its own context, with only the tools listed in its header: read-only `Read`, `Grep`, `Glob`, and `WebSearch` / `WebFetch` where the agent needs public sources. It cannot write files or run commands.
+4. Its first step is to read `.github/agents/<name>.agent.md` and follow it exactly. If that file can't be read, it stops instead of working from memory.
+5. **Check:** the agent's first line is `<name> vX.Y | preflight`. If you don't see it, the instructions weren't loaded.
+
+<a id="github-copilot-chat-in-vs-code"></a>
+**GitHub Copilot Chat in VS Code**
+1. When you open the repository folder, VS Code finds every `*.agent.md` file in `.github/agents/` and lists each one in the Copilot Chat **agent dropdown**, using the `name` in its header.
+2. You pick the agent in the dropdown and type its input (or `?`).
+3. Copilot uses the file's body as the agent's instructions and offers only the tools listed in its header (for example `web/fetch`). VS Code asks you to approve tool calls such as page fetches.
+4. **Check:** the first line is `<name> vX.Y | preflight`. If the agent is missing from the dropdown, check that the file name ends in `.agent.md` and that your Copilot Chat version supports custom agents (see [docs/COPILOT-MIGRATION.md](docs/COPILOT-MIGRATION.md)).
+5. Only `.agent.md` files belong in `.github/agents/`; anything else placed there would also be loaded as an agent.
+
+<a id="openai-codex"></a>
+**OpenAI Codex** (not yet tested)
+1. Codex reads project-scoped custom agents from `.codex/agents/*.toml`. Each file here has the three required fields: `name`, `description` and `developer_instructions`.
+2. The `developer_instructions` tell Codex to read `.github/agents/<name>.agent.md` and follow it, the same way the Claude Code entry files do.
+3. Codex starts a custom agent when you ask for it by name (e.g. "Have vm-triage research CVE-2021-44228"), or when project instructions say to.
+
+<a id="cline-legacy"></a>
+**Cline (legacy)**
+1. Cline has no agent dropdown for these files and loads nothing automatically.
+2. Start a new task in **Act** mode and paste the start prompt from the agent's *Runtime notes* section, e.g. `Read the existing file .github/agents/vm-triage.agent.md (never create or edit it) and follow it exactly for CVE-2021-44228.`
 
 ### Getting help: `?` or `help`
 
