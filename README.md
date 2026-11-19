@@ -16,7 +16,7 @@ Every agent is **analysis-only**, **vendor-neutral** and **evidence-first**: eac
 | **[vulnerability-hunt](.github/agents/vulnerability-hunt.agent.md)** | Takes vm-triage's output plus your inventory and decides, asset by asset, whether you're affected and exposed and how urgently to act, with fix-verification steps and ticket drafts. | vm-triage JSON + SBOM / scanner / CMDB export | Per-asset status, SSVC-style urgency, verification plan, ticket drafts |
 | **[soc-analyst](.github/agents/soc-analyst.agent.md)** | Triages one security alert (sign-in, endpoint, email, network, CI/CD) and recommends one of seven dispositions, with an evidence log, a timeline and ATT&CK mapping. | An alert + related logs | Disposition, evidence log, timeline, ATT&CK mapping |
 | **[cloud-security-analyst](.github/agents/cloud-security-analyst.agent.md)** | Finds real attack paths in cloud IaC, IAM and CSPM data, and triages cloud alerts by correlating them with audit logs. | IaC, IAM policies, CSPM exports — or a cloud alert + audit events | Ranked attack paths, or an alert disposition |
-| **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
+| **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. [How to use →](docs/guides/threat-modeler.md) | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
 | **[threat-intel-analyst](.github/agents/threat-intel-analyst.agent.md)** | Profiles a threat actor, campaign or indicator set from public sources: ATT&CK techniques, IOCs, attribution with competing hypotheses, published detection rules and STIX-style output. | An actor, campaign or indicator set | Intelligence brief + STIX-style JSON |
 | **[team-manager](.github/agents/team-manager.agent.md)** | Routes a security request to the right agents or human teams in a safe order, then merges their reports into one summary where every conclusion names its source. | A security request (and, later, the specialists' reports) | Routed plan, then one combined summary |
 
@@ -135,84 +135,13 @@ Every example below uses **synthetic data that is already in this repository**. 
 
 Expected results for each example are in [`tests/<agent>/`](tests). In Claude Code, add `Show me the complete report verbatim.` so the full report is shown rather than a summary.
 
-### threat-modeler: step by step on a real project
+### Step-by-step guides
 
-From "the application team sent us their design" to an **Excel threat register**, a **Word report** and **diagram images**. In **Claude Code** you type two prompts and approve one diagram; Claude saves the files and runs the export for you. Replace `<system>` with a short folder name for the application (e.g. `careslot`). More detail: [threat-modeler guide](docs/threat-modeler-guide.md).
+Most agents need a single prompt (see [Try it](#try-it)). For multi-step work there is a guide per agent:
 
-> **Data rule:** real designs and code describe your organisation's weaknesses. Use them only with an AI service your organisation has approved. Everything stays under `docs/threat-models/`, which is git-ignored so nothing is pushed. Never paste diagrams into online Mermaid or diagram sites.
-
-#### 1. One-time setup (for Excel, Word and images)
-
-The agent itself needs no installation. To get the files, run this **once** in the VS Code terminal, from your project folder:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\threat-modeler-export\setup.ps1
-```
-
-It installs only what is missing (Python packages for Excel, pandoc for Word, Node.js and Mermaid CLI for images) and prints a ✅ / ❌ summary. **Then close VS Code completely and reopen it**, because VS Code does not see newly installed programs until it restarts. If the summary asks you to, run the script once more.
-
-- Each part is optional: without pandoc there is no Word file, without Mermaid CLI no images. Excel only needs Python.
-- On a managed work laptop, installing software may need IT approval.
-- Skipped this step? Claude tells you which files are missing and offers to run the script for you.
-
-#### 2. Get the material from the application team
-
-Send them the intake form [`docs/threat-model-intake.md`](docs/threat-model-intake.md) (25 questions). Ask them to answer what they can **in one go**, writing `not available` for the rest, and to send any **diagrams, design documents, code, IaC and API specs** they have.
-
-| Put | Where |
+| Agent | Guide |
 |---|---|
-| Documents, diagrams, code, IaC, API specs | `docs/threat-models/<system>/input/` |
-| Their filled intake form | `docs/threat-models/<system>/intake-answers.md` (next to `input/`, **not** inside it) |
-
-Save files in these folders, not in the chat box: the agent reads files by path. Save Word, Visio and draw.io files as PDF or PNG first.
-
-#### 3. Start the threat model (Claude Code chat)
-
-```text
-Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ intake: docs/threat-models/<system>/intake-answers.md
-```
-
-The agent reads everything and **pauses for your review** of the data-flow diagram (DFD). Claude saves the review to `docs/threat-models/<system>/review-round-1.md` and gives you the diagram as a **PNG**. If Mermaid CLI is not installed, open the saved file and press **Ctrl+Shift+V** to see it.
-
-> The Claude Code chat itself shows the diagram only as text. That is why Claude saves it for you.
-
-Check the diagram with the application team. Mismatches between their documents and their code are listed first.
-
-#### 4. Approve (or correct) the diagram (Claude Code chat)
-
-```text
-approve — <your name>, <your role>
-```
-
-Or describe what is wrong in plain words (e.g. `the worker also reads the wallet database`). Claude passes your answer to the agent, which redraws the diagram (up to 3 rounds) or, after approval, writes the full report.
-
-#### 5. Get the results
-
-Claude saves the report and runs the export. You get, in `docs/threat-models/<system>/`:
-
-| File | What it is |
-|---|---|
-| `export-<date>/threat-model.xlsx` | **Excel threat register**: threats with STRIDE category, risk rating and P1–P4 priority (coloured, with filters), plus sheets for assumptions, controls, recommended and compensating controls, vulnerabilities, critical interactions, deployment, decisions and ticket drafts |
-| `export-<date>/report.docx` | **Word report** in Calibri, with all sections and the diagrams embedded |
-| `export-<date>/dfd-01.png`, `deployment-01.png` | **Diagram images**: trust boundaries as red dashed boxes, critical flows in thick red |
-| `report-<date>.md` | The full report as text (14 sections) |
-| `export-<date>/threat-model.json` | Give it to the agent next time as `previous:` to see what has been fixed |
-
-Claude Code asks your permission before it runs the export command.
-
-#### How gaps appear
-
-Each of the 25 intake questions appears in the report's intake checklist as `Provided`, `Derived` (found in the documents, with `file:line`), `Not provided` (with how the gap weakens the model) or `Not applicable`. **Each gap is a named weakness the team can fix later, not a silent guess**; readiness and confidence are lowered accordingly.
-
-#### In GitHub Copilot
-
-Steps 1–2 are the same. Pick **threat-modeler** in the agent dropdown and send the prompt from step 3; to approve, just reply `approve — <your name, role>` in the same chat. Copilot does not save or export for you: copy the report into `docs/threat-models/<system>/report.md` and run:
-
-```powershell
-python tools\threat-modeler-export\tm_export.py docs\threat-models\<system>\report.md --docx
-```
-
-(Copilot Chat in VS Code 1.109+ may also draw the diagram directly in the chat; not yet tested.)
+| threat-modeler | **[docs/guides/threat-modeler.md](docs/guides/threat-modeler.md)**: from the application team's documents to a full threat model in Claude Code: intake form, diagram review, approval and report (no installation needed), plus optional Excel, Word and PNG output |
 
 ### Getting help: `?` or `help`
 
@@ -322,7 +251,7 @@ Each agent has **golden tests** in [`tests/<agent>/`](tests) — scenarios, expe
 .claude/agents/     Claude Code entry points (read-only tools)
 .codex/agents/      OpenAI Codex entry points
 AGENTS.md           Shared rules every agent follows
-docs/               Agent template, per-agent changelogs, Copilot setup, threat-modeler guide and intake form
+docs/               Agent template, per-agent changelogs, Copilot setup, step-by-step guides (docs/guides/), threat-modeler intake form
 tests/              Golden tests, fixtures and baseline reports
 tools/              threat-modeler-export: turns a threat-model report into diagram, spreadsheet and JSON files
 ```

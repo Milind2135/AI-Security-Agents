@@ -1,129 +1,161 @@
-# Using threat-modeler on a real project
+# threat-modeler: how to use it on a real project
 
-A step-by-step guide for a first-time user: what to collect, which prompts to send, and what comes back at each stage.
-The agent instructions are in [`.github/agents/threat-modeler.agent.md`](../.github/agents/threat-modeler.agent.md);
-the questionnaire the application team fills in is [`docs/threat-model-intake.md`](threat-model-intake.md).
+From "the application team sent us their design" to a full threat model. **Part 1** needs no installation and gives you the complete report. **Part 2** is optional and adds an Excel threat register, a Word report and diagram images.
 
-> **Data rule.** Real designs, code and diagrams describe your organisation's weaknesses. Use them only with an AI service your organisation has approved, keep them in a git-ignored folder (`docs/threat-models/` is ignored in this repository), and never paste them into online diagram or AI tools. For practice, use the synthetic systems in [`tests/threat-modeler/fixtures/`](../tests/threat-modeler/fixtures).
+Agent instructions: [`.github/agents/threat-modeler.agent.md`](../../.github/agents/threat-modeler.agent.md) · Intake form for the application team: [`docs/threat-model-intake.md`](../threat-model-intake.md)
 
-## How a run works
+> **Data rule:** real designs and code describe your organisation's weaknesses. Use them only with an AI service your organisation has approved. Everything stays under `docs/threat-models/`, which is git-ignored so nothing is pushed. Never paste diagrams into online Mermaid or diagram sites. For practice, use the synthetic systems in [`tests/threat-modeler/fixtures/`](../../tests/threat-modeler/fixtures).
 
-```text
-Collect material ─▶ Run 1: questionnaire ─▶ Team answers (one go) ─▶ Run 2: model + DFD review ─▶ You approve ─▶ Run 3: full report ─▶ Export files
-```
+## Part 1: Get the threat model (no installation needed)
 
-The agent pauses at only two points: **once** for the intake questionnaire and for the **data-flow diagram (DFD) review** (at most 3 rounds). It never asks anything else; whatever is still missing is recorded as a gap.
+You need VS Code with the **Claude Code extension**, and this repository open in VS Code (see [Claude Code setup](../../README.md#claude-code-tested-runtime)). Everything below happens in the VS Code **file explorer** and the **Claude Code chat**. Replace `<system>` with a short name for the application (e.g. `careslot`).
 
-In **Claude Code**, a subagent cannot wait for a reply, so each pause ends the run and you start the next run with the extra input. In **GitHub Copilot** you can simply reply in the same chat.
+### Step 1: Ask the application team for their material
 
-## Step 1 — Collect the material from the application team
+Send them the intake form [`docs/threat-model-intake.md`](../threat-model-intake.md) (25 questions in 4 tiers). Ask them to:
+- answer what they can **in one go**, writing `not available` for anything they don't have; that is a valid answer;
+- send any **diagrams, design documents, code, infrastructure-as-code (IaC) and API specs** they have. Code and IaC matter most: without them, controls can only be marked `Claimed` and confidence is `Low`.
 
-Ask the team for what they already have and put it in one folder, e.g. `docs/threat-models/<system>/input/`:
+### Step 2: Put the files in the project folder
 
-| Material | Formats the agent can read |
+In the VS Code file explorer, create these folders and drag the files in:
+
+| Put | Where |
 |---|---|
-| Design / architecture documents | PDF, Markdown, text (save Word files as PDF first) |
-| Diagrams | PNG or JPG (export Visio / draw.io diagrams to PNG first) |
-| Source code | The repository folder or the relevant paths (entry points, auth, data access) |
-| Infrastructure as code | Terraform, CloudFormation, Bicep/ARM, Kubernetes, Helm |
-| API specifications | OpenAPI / GraphQL / gRPC files |
-| Pipeline files | CI/CD definitions |
+| Their documents, diagrams, code, IaC, API specs | `docs/threat-models/<system>/input/` |
+| Their filled intake form | `docs/threat-models/<system>/intake-answers.md` (next to `input/`, **not** inside it) |
 
-Code and IaC matter most: without them, controls can only be marked `Claimed` and overall confidence is `Low`.
+- Don't drop files into the chat box: the agent only reads files saved in the project folder.
+- Save Word, Visio and draw.io files as **PDF or PNG** first. The agent reads text files, code, PDF and PNG/JPG.
 
-## Step 2 — Get the questions to the team
-
-Choose one:
-
-- **A. Send the blank form.** Give the team [`docs/threat-model-intake.md`](threat-model-intake.md) (25 questions in 4 tiers). It explains itself and says what not to include.
-- **B. Let the agent ask.** Run the agent once without `intake:` and send the team the questionnaire it prints:
-  ```text
-  Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ Show me the complete output verbatim.
-  ```
-  At this point the agent has not read your documents yet. It only marks questions where a matching file is present (e.g. `Received: architecture-diagram.png` for the diagram question).
-
-## Step 3 — Collect the answers in one go
-
-- Ask the team to answer **everything they can in one reply**, and to write **`not available`** for anything they do not have. That is a valid answer.
-- Save their answers as a file next to the input folder (not inside it), e.g. `docs/threat-models/<system>/intake-answers.md`.
-- Do not chase every gap before running the agent: each unanswered item is recorded in the report with its effect, so the team can close it later.
-
-## Step 4 — Run 2: build the model and review the diagram
+### Step 3: Start the threat model (Claude Code chat)
 
 ```text
-Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ intake: docs/threat-models/<system>/intake-answers.md Show me the complete output verbatim.
+Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ intake: docs/threat-models/<system>/intake-answers.md
 ```
 
-You get a **model for review**:
-- **Mismatches (`MM-#`)** listed first, where the documents and the code or IaC disagree. These are often the most valuable findings.
-- The DFD with labelled elements, trust boundaries and critical interactions (★), plus a deployment view.
-- The readiness result and a **JSON block** at the end. Keep it for the next step.
+No filled form yet? Leave out the `intake:` part. The agent then asks its 25 questions first; answer in the chat (or give a file path) and Claude passes your answers on.
 
-**View the diagram as an image.** The diagram arrives as Mermaid text. To get PNG/JPG for the review:
-1. Save the whole review message as a file, e.g. ask the main Claude Code session: `Save the complete threat-modeler model review above verbatim to docs/threat-models/<system>/review-round-1.md`
-2. Run the exporter (one-time setup in [its README](../tools/threat-modeler-export/README.md)):
+### Step 4: Review the data-flow diagram
+
+The agent stops and asks you to check its picture of the system. Claude saves this review as `docs/threat-models/<system>/review-round-1.md`.
+
+To see the diagram, **open that file and press `Ctrl+Shift+V`** (Markdown preview). The Claude Code chat itself shows the diagram only as text. If you have done the optional setup (Part 2), Claude also gives you the diagram as **PNG** files.
+
+Check it with the application team:
+- Are all components, data stores, users and third parties there?
+- Are the flows between them right?
+- Read the **mismatches** listed first: places where their documents and their code disagree.
+
+### Step 5: Approve or correct (Claude Code chat)
+
+If the diagram is right:
+
+```text
+approve — <your name>, <your role>
+```
+
+If something is wrong, say so in plain words, for example:
+
+```text
+the notification worker also reads the PostgreSQL database
+```
+
+Claude passes your reply to the agent. A correction gives you a new review (`review-round-2.md`, up to 3 rounds); approval starts the full analysis. Take your time on the review: each round re-runs the whole agent.
+
+**Continuing in a new chat?** A new Claude Code session does not remember the old chat, but the saved review does. Use:
+
+```text
+Continue the threat-modeler run for <system>: approve — <your name>, <your role>. Use the model JSON from docs/threat-models/<system>/review-round-1.md
+```
+
+### Step 6: Read the report
+
+Claude saves the full report as `docs/threat-models/<system>/report-<date>.md`. Open it and press **Ctrl+Shift+V** for a readable view. It contains:
+- a summary, readiness and confidence;
+- the **intake checklist**: what was provided, what was missing and why it matters;
+- the data-flow and deployment diagrams;
+- threats (STRIDE), vulnerabilities and validation of the existing controls;
+- risks ranked **P1–P4**, with treatment options and residual risk;
+- recommended controls with owners, plus ticket drafts;
+- assumptions to confirm, and CSV and JSON blocks for further use.
+
+**How gaps appear:** every intake question is marked `Provided`, `Derived` (found in the documents, with `file:line`), `Not provided` (with how the gap weakens the model) or `Not applicable`. Each gap is a **named weakness the team can fix later, not a silent guess**; readiness and confidence are lowered accordingly.
+
+## Part 2 (optional): Excel, Word and diagram images
+
+Want the threat register in **Excel**, the report in **Word**, or the diagrams as **PNG**? Do this setup once. After that, Claude creates these files automatically after every review and report.
+
+### One-time setup
+
+1. In VS Code, open **Terminal → New Terminal**. It opens in your project folder.
+2. Run:
    ```powershell
-   python tools\threat-modeler-export\tm_export.py docs\threat-models\<system>\review-round-1.md --diagrams-only
+   powershell -ExecutionPolicy Bypass -File tools\threat-modeler-export\setup.ps1
    ```
-3. Open `docs/threat-models/<system>/export/dfd-01.png` (and `deployment-01.png`). Trust boundaries are red dashed boxes; critical flows are thick red lines. Rendering is local; never paste the diagram into an online Mermaid site.
+   It installs only what is missing and prints a summary:
 
-Check the diagram with the application team. If something is wrong, re-run with a correction:
-```text
-Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ intake: docs/threat-models/<system>/intake-answers.md model: <paste the JSON block> review: <what is wrong, in plain words> Show me the complete output verbatim.
-```
+   | Tool | Gives you |
+   |---|---|
+   | Python packages (openpyxl, Pillow) | Excel threat register, JPG images |
+   | pandoc | Word report |
+   | Node.js + Mermaid CLI | Diagram images (PNG/JPG/SVG), also embedded in the Word report |
 
-## Step 5 — Run 3: approve and get the full report
+3. **Close VS Code completely and reopen it.** VS Code does not see newly installed programs until it restarts. If the summary asks you to, run the script once more.
 
-```text
-Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ intake: docs/threat-models/<system>/intake-answers.md model: <paste the latest JSON block> review: approve — <your name>, <your role> Show me the complete report verbatim.
-```
+Notes:
+- Each tool is optional: without pandoc there is no Word file, and without Mermaid CLI there are no images. Excel only needs Python.
+- On a managed work laptop, installing software may need IT approval.
+- Prefer to install by hand? See the [exporter README](../../tools/threat-modeler-export/README.md).
 
-The report has 14 sections: threats, vulnerabilities, existing-control validation, risks ranked P1–P4, treatment and residual risk, recommended controls with owners and ticket drafts, plus CSV and JSON blocks.
+### What you get
 
-## How gaps appear in the report
+After the report (Step 6), Claude asks permission to run the export, then lists the files in `docs/threat-models/<system>/export-<date>/`:
 
-Every one of the 25 questions appears in the **intake checklist** with one status:
-
-| Status | Meaning |
+| File | What it is |
 |---|---|
-| `Provided` | The team answered it, or a matching file was supplied |
-| `Derived` | Not answered, but found in the documents, with `file:line` |
-| `Not provided` | Not answered and not found, with one line on how the gap weakens the model |
-| `Not applicable` | The material shows it does not exist (e.g. no AI features) |
+| `threat-model.xlsx` | **Excel threat register**: threats with STRIDE category, risk rating and P1–P4 priority (coloured, with filters), plus sheets for assumptions, controls, recommended and compensating controls, vulnerabilities, critical interactions, deployment, decisions and ticket drafts |
+| `report.docx` | **Word report** in Calibri, with the diagrams embedded |
+| `dfd-01.png`, `deployment-01.png` (and `.jpg`, `.svg`) | **Diagram images**: trust boundaries as red dashed boxes, critical flows in thick red |
+| `threat-model.json` | Give it to the agent next time as `previous:` to see what has been fixed |
 
-- `Not provided` never means "does not exist". Missing logging details do not mean there is no logging.
-- **Readiness:** `Not ready` (stops and lists the most useful missing items) if nothing says what the system does or no component and data flow are described; `Proceed with limits` if no code or IaC was read.
-- **Confidence:** `High` only when Q1–Q6 are answered or derived, code or IaC was read, and the DFD was approved.
-- Anything the agent had to assume goes into the **assumptions register** for the team to confirm.
+To run the export yourself (e.g. after copying a report from Copilot):
 
-The result: each gap is a **named weakness the team can fix later, not a silent guess**.
+```powershell
+python tools\threat-modeler-export\tm_export.py docs\threat-models\<system>\report.md --docx
+```
 
-## Step 6 — Save and export
+| If you see | Fix |
+|---|---|
+| `pandoc not found` (no Word file) | Run the setup script, restart VS Code, run the export again |
+| `Mermaid CLI (mmdc) not found` (no images) | Same as above |
+| `no valid threat-modeler ... JSON handoff found` | The saved report is incomplete: save it again from the first line to `Validation: NOT RUN (chat mode).` |
+| `cd : Cannot find path ...` | You are in a separate PowerShell window; use **Terminal → New Terminal** in VS Code instead |
 
-1. Save the complete report (from `threat-modeler vX.Y | result` to `Validation: NOT RUN (chat mode).`) to `docs/threat-models/<system>/<date>/report.md`.
-2. Optional: turn it into diagram images, an Excel threat register and a Word report with the [exporter](../tools/threat-modeler-export/README.md):
-   ```powershell
-   python tools\threat-modeler-export\tm_export.py docs\threat-models\<system>\<date>\report.md --docx
-   ```
+## After the review: decisions, temporary fixes, rechecks
 
-## Step 7 — After the review
+Add these to the Step 3 prompt when needed:
 
-| Situation | Add to the prompt |
+| Situation | Add |
 |---|---|
 | The risk owner decides on a threat | `decisions: T-03 accept — Head of Payments, 2027-03-31` (or treat / transfer / avoid) |
 | The team has a temporary fix | `compensating: T-05 compensating — <control> — <evidence> — <owner> — until <date>` |
-| Later recheck after fixes | `previous: <the earlier report JSON>` with the current material; the report shows what is fixed, still open, changed or new |
+| Recheck after fixes | `previous: <path to the earlier threat-model.json>` with the current material; the report shows what is fixed, still open, changed or new |
 
 The agent records decisions; it never accepts a risk itself.
+
+## In GitHub Copilot
+
+Steps 1–2 are the same. Pick **threat-modeler** in the Copilot Chat agent dropdown and send the Step 3 prompt; to approve, reply `approve — <your name, role>` in the same chat. Copilot does not save files or run the export for you: copy the report into `docs/threat-models/<system>/report.md` and run the export command above. Copilot Chat in VS Code 1.109+ may draw the diagram directly in the chat (not yet tested).
 
 ## Quick reference
 
 | Input | Purpose |
 |---|---|
-| `system:` | Folder or paths with the material (required) |
-| `intake:` | Answers file or pasted answers; `skip` for no questions; leave out to get the questionnaire |
-| `checkpoint: skip` | No DFD review pause (quick runs and tests only) |
-| `model:` + `review:` | Continue after the DFD review (correction or `approve — <name, role>`) |
+| `system:` | Folder with the material (required) |
+| `intake:` | Answers file or pasted answers; leave out to get the questionnaire; `skip` for no questions |
+| `checkpoint: skip` | No diagram review pause (quick runs and tests only) |
+| `focus:` | Model only some components in depth (also uses less of your usage quota) |
+| `depth: thorough` | More research budget |
 | `previous:`, `decisions:`, `compensating:` | Recheck and follow-up |
-| `focus:` / `depth:` | Model only some components / more research budget |
-| `?` | Print the usage card |
+| `?` | Print the agent's usage card |

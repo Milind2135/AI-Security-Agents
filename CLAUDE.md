@@ -34,11 +34,12 @@ threat-modeler is read-only and pauses twice. You (the main session) handle file
   2. If `mmdc` is available, run `python tools/threat-modeler-export/tm_export.py <folder>/review-round-N.md --diagrams-only --formats png --out <folder>/review-round-N-images` and give the user the PNG path(s). Otherwise tell them to open the saved file and press **Ctrl+Shift+V** to see the diagram.
   3. Show the review verbatim, then: "Reply `approve — <your name, role>`, or describe what is wrong."
 - **User replies to a review:** re-run threat-modeler with the same `system:` and `intake:`, plus `model:` = the JSON block from the **latest** review message copied exactly, and `review:` = the user's reply exactly. Never edit the JSON, never write `approve` unless the user did, and never invent a name or role.
+- **Continuing in a new chat:** if the review is not in this conversation (e.g. "Continue the threat-modeler run for <system> …"), read the JSON block from the highest-numbered `docs/threat-models/<system>/review-round-N.md`, and take `system:` and `intake:` from that system's folder (`input/` and the intake answers file next to it). If either is unclear, ask the user once.
 - **Report returned** (first line `threat-modeler vX.Y | result`):
   1. Save it verbatim to `<folder>/report-<YYYY-MM-DD>.md` (add `-2`, `-3` if that name exists; never overwrite a report).
   2. Check the export tools: Python with `openpyxl` (Excel), `pandoc` (Word), `mmdc` (images).
   3. Run `python tools/threat-modeler-export/tm_export.py <saved report> --docx --out <folder>/export-<YYYY-MM-DD>` (leave out `--docx` if pandoc is missing).
-  4. Show the report verbatim, then list the files created (Excel, Word, images) with their paths. For each missing tool, say which output is missing and offer to run `powershell -ExecutionPolicy Bypass -File tools\threat-modeler-export\setup.ps1` (Windows) **only if the user says yes**; then remind them to restart VS Code.
+  4. Show the report verbatim, then list the files created (Excel, Word, images) with their paths. If tools are missing, do not present it as an error: say the report is saved as Markdown and that Excel / Word / PNG need the optional one-time setup (`docs/guides/threat-modeler.md`, Part 2); offer to run `powershell -ExecutionPolicy Bypass -File tools\threat-modeler-export\setup.ps1` (Windows) **only if the user says yes**; then remind them to restart VS Code.
 - If saving or exporting fails, say what failed and give the manual command; never retry in a loop.
 
 ## Constraints the agents must respect
