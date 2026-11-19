@@ -9,7 +9,7 @@ Turns a saved **threat-modeler** report into shareable files. Plain Python, no A
 | `*.mmd` | Diagram source (editable; GitHub renders it; can be imported into draw.io) |
 | `threat-model.xlsx` | Threat register (colour by priority, filters) + sheets for assumptions, controls, recommended controls, compensating controls, vulnerabilities, critical interactions, deployment, decisions, tickets |
 | `threat-model.json` | The agent's JSON handoff — pass it as `previous:` next time |
-| `report.docx` | Full report with diagrams embedded (only with `--docx` and pandoc installed) |
+| `report.docx` | Full report with diagrams embedded, in **Calibri** (styles from `reference.docx` in this folder; only with `--docx` and pandoc installed) |
 
 ## One-time setup (Windows, VS Code terminal — PowerShell)
 1. **Python packages** (Python 3.10+):
