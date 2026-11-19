@@ -16,7 +16,7 @@ Every agent is **analysis-only**, **vendor-neutral** and **evidence-first**: eac
 | **[vulnerability-hunt](.github/agents/vulnerability-hunt.agent.md)** | Takes vm-triage's output plus your inventory and decides, asset by asset, whether you're affected and exposed and how urgently to act, with fix-verification steps and ticket drafts. | vm-triage JSON + SBOM / scanner / CMDB export | Per-asset status, SSVC-style urgency, verification plan, ticket drafts |
 | **[soc-analyst](.github/agents/soc-analyst.agent.md)** | Triages one security alert (sign-in, endpoint, email, network, CI/CD) and recommends one of seven dispositions, with an evidence log, a timeline and ATT&CK mapping. | An alert + related logs | Disposition, evidence log, timeline, ATT&CK mapping |
 | **[cloud-security-analyst](.github/agents/cloud-security-analyst.agent.md)** | Finds real attack paths in cloud IaC, IAM and CSPM data, and triages cloud alerts by correlating them with audit logs. | IaC, IAM policies, CSPM exports — or a cloud alert + audit events | Ranked attack paths, or an alert disposition |
-| **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
+| **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. [How to use →](docs/guides/threat-modeler.md) | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
 | **[threat-intel-analyst](.github/agents/threat-intel-analyst.agent.md)** | Profiles a threat actor, campaign or indicator set from public sources: ATT&CK techniques, IOCs, attribution with competing hypotheses, published detection rules and STIX-style output. | An actor, campaign or indicator set | Intelligence brief + STIX-style JSON |
 | **[team-manager](.github/agents/team-manager.agent.md)** | Routes a security request to the right agents or human teams in a safe order, then merges their reports into one summary where every conclusion names its source. | A security request (and, later, the specialists' reports) | Routed plan, then one combined summary |
 
@@ -135,20 +135,13 @@ Every example below uses **synthetic data that is already in this repository**. 
 
 Expected results for each example are in [`tests/<agent>/`](tests). In Claude Code, add `Show me the complete report verbatim.` so the full report is shown rather than a summary.
 
-### Optional: export a threat model to images, Excel and Word
+### Step-by-step guides
 
-threat-modeler writes its report, diagrams (as Mermaid text), CSV and JSON in the chat. The included exporter turns a saved report into **diagram images** (PNG, JPG, SVG), an **Excel threat register** and a **Word report**. It runs locally and sends nothing online. It needs Python; Node.js with Mermaid CLI for the images and pandoc for Word are optional, and the script still produces everything else if they are missing. Setup and usage: [tools/threat-modeler-export/README.md](tools/threat-modeler-export/README.md). The other agents need no exporter: their report and JSON are the output.
+Most agents need a single prompt (see [Try it](#try-it)). For multi-step work there is a guide per agent:
 
-### Using threat-modeler on a real project
-
-For a real application, the usual flow is:
-
-1. Collect the application team's material (design documents, diagrams, code, IaC, API specs) in one folder.
-2. Send the team the **intake questionnaire**: either the blank form [`docs/threat-model-intake.md`](docs/threat-model-intake.md), or the questions the agent prints on its first run.
-3. Collect their answers **in one go**, with `not available` for anything they don't have, and save them as a file.
-4. Run the agent with `intake: <their answers file>`, review and approve the data-flow diagram, then get the full report.
-
-Each unanswered question shows up in the report as a **named weakness the team can fix later, not a silent guess**: the intake checklist marks it `Not provided` with its effect, and readiness and confidence are adjusted. Step-by-step prompts are in the **[threat-modeler guide](docs/threat-modeler-guide.md)**.
+| Agent | Guide |
+|---|---|
+| threat-modeler | **[docs/guides/threat-modeler.md](docs/guides/threat-modeler.md)**: from the application team's documents to a full threat model in Claude Code: intake form, diagram review, approval and report (no installation needed), plus optional Excel, Word and PNG output |
 
 ### Getting help: `?` or `help`
 
@@ -258,7 +251,7 @@ Each agent has **golden tests** in [`tests/<agent>/`](tests) — scenarios, expe
 .claude/agents/     Claude Code entry points (read-only tools)
 .codex/agents/      OpenAI Codex entry points
 AGENTS.md           Shared rules every agent follows
-docs/               Agent template, per-agent changelogs, Copilot setup, threat-modeler guide and intake form
+docs/               Agent template, per-agent changelogs, Copilot setup, step-by-step guides (docs/guides/), threat-modeler intake form
 tests/              Golden tests, fixtures and baseline reports
 tools/              threat-modeler-export: turns a threat-model report into diagram, spreadsheet and JSON files
 ```

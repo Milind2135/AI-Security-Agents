@@ -1,6 +1,6 @@
 # Threat model intake form
 
-> New to threat-modeler? Read the step-by-step guide first: [docs/threat-modeler-guide.md](threat-modeler-guide.md).
+> New to threat-modeler? Read the step-by-step guide first: [docs/guides/threat-modeler.md](guides/threat-modeler.md).
 
 Fill in what you have and give this file to the `threat-modeler` agent as `intake: <path to this file>`. One pass is enough — leave anything you do not have as `not available`; the agent records it honestly as **Not provided** and works from the material instead.
 

@@ -12,6 +12,8 @@ Turns a saved **threat-modeler** report into shareable files. Plain Python, no A
 | `report.docx` | Full report with diagrams embedded, in **Calibri** (styles from `reference.docx` in this folder; only with `--docx` and pandoc installed) |
 
 ## One-time setup (Windows, VS Code terminal — PowerShell)
+**Quickest:** run `powershell -ExecutionPolicy Bypass -File tools\threat-modeler-export\setup.ps1` from the repository folder. It installs only what is missing and prints a summary; then restart VS Code. The manual steps below do the same.
+
 1. **Python packages** (Python 3.10+):
    ```powershell
    pip install -r tools\threat-modeler-export\requirements.txt
