@@ -224,7 +224,11 @@ def main():
             md = FENCE.sub(swap, text)
             tmp_md = out / "_report_for_docx.md"
             tmp_md.write_text(md, encoding="utf-8")
-            r = subprocess.run([pandoc, tmp_md.name, "-o", "report.docx"], cwd=out, capture_output=True, text=True)
+            cmd = [pandoc, tmp_md.name, "-o", "report.docx"]
+            ref = Path(__file__).resolve().parent / "reference.docx"   # Calibri styles for the Word report
+            if ref.is_file():
+                cmd += ["--reference-doc", str(ref)]
+            r = subprocess.run(cmd, cwd=out, capture_output=True, text=True)
             tmp_md.unlink(missing_ok=True)
             print("  report.docx" if r.returncode == 0 else f"  ! pandoc failed: {r.stderr.strip()[:300]}")
     print(f"Done: {out}")
