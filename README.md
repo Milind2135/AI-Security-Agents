@@ -56,6 +56,20 @@ These rules are built into every agent file (see [`AGENTS.md`](AGENTS.md) for th
 
 ## Running the agents
 
+### Supported setups
+
+| Setup | Status | How the agents load |
+|---|---|---|
+| **VS Code + Claude Code** | ✅ Tested (primary) | Each file in [`.claude/agents/`](.claude/agents) points Claude Code to the full instructions in `.github/agents/` |
+| **Claude Code in any other terminal** | Same files as above, not tested separately | Same as above |
+| **VS Code + GitHub Copilot Chat** | ⚠️ Supported, not yet tested | Copilot reads [`.github/agents/`](.github/agents) directly; pick the agent in the Copilot Chat agent dropdown |
+| **OpenAI Codex** | ⚠️ Entry files included, not tested | [`.codex/agents/`](.codex/agents) |
+| **Cline** (VS Code extension) | Legacy, no longer maintained | Start prompt in each agent's *Runtime notes* section |
+
+- **One instruction file per agent** serves every setup, so there are no separate Claude and Copilot versions to keep in sync.
+- **Copilot can use different models** (GPT, Claude, Gemini and others). The agents are written to be model-neutral; results are judged against the [golden tests](#tests), not identical wording.
+- **team-manager `mode: run`** (calling the other agents automatically) needs a setup that lets one agent call another, currently Copilot, and has not been tested yet. In Claude Code, team-manager plans the work, and you run each step's prompt yourself.
+
 ### Getting help: `?` or `help`
 
 Not sure what an agent needs? Select the agent, then send **`?`** or **`help`** on its own. It replies with a short **usage card**: what it does, the inputs it needs, optional settings, copy-and-edit examples, and what it does *not* do (with the agent to use instead). It does no research and uses none of its budget.
