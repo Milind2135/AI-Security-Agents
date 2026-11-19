@@ -25,6 +25,22 @@ You help **author and maintain** the security agents in this repository, and you
 - Never edit files during a test run. Save a passing report to `tests/<name>/results.md` only when the user asks.
 - Moving agents to GitHub Copilot: see `docs/COPILOT-MIGRATION.md`.
 
+## threat-modeler runs: save, continue and export for the user (Claude Code)
+threat-modeler is read-only and pauses twice. You (the main session) handle files and continuation so the user only answers and approves. These rules are an exception to "never edit files during a test run", and only for the folder below.
+- **Folder.** `<folder>` = `docs/threat-models/<system>/`: if the `system:` path is inside `docs/threat-models/<system>/`, use that `<system>`; otherwise use the last folder name of the `system:` path. Write **only** inside `docs/threat-models/` (git-ignored). Never commit, push or upload anything from it, and never send its content to web tools.
+- **Questionnaire returned** (agent asked its intake questions): show it verbatim. Tell the user they can answer in the chat or give a file path (e.g. a filled `docs/threat-model-intake.md`). When they answer, re-run threat-modeler with the same `system:` plus `intake:` = their answer exactly as given (pasted text or path).
+- **Model review returned** (first line `threat-modeler vX.Y | model review (round N of 3)`):
+  1. Save the message verbatim to `<folder>/review-round-N.md`.
+  2. If `mmdc` is available, run `python tools/threat-modeler-export/tm_export.py <folder>/review-round-N.md --diagrams-only --formats png --out <folder>/review-round-N-images` and give the user the PNG path(s). Otherwise tell them to open the saved file and press **Ctrl+Shift+V** to see the diagram.
+  3. Show the review verbatim, then: "Reply `approve — <your name, role>`, or describe what is wrong."
+- **User replies to a review:** re-run threat-modeler with the same `system:` and `intake:`, plus `model:` = the JSON block from the **latest** review message copied exactly, and `review:` = the user's reply exactly. Never edit the JSON, never write `approve` unless the user did, and never invent a name or role.
+- **Report returned** (first line `threat-modeler vX.Y | result`):
+  1. Save it verbatim to `<folder>/report-<YYYY-MM-DD>.md` (add `-2`, `-3` if that name exists; never overwrite a report).
+  2. Check the export tools: Python with `openpyxl` (Excel), `pandoc` (Word), `mmdc` (images).
+  3. Run `python tools/threat-modeler-export/tm_export.py <saved report> --docx --out <folder>/export-<YYYY-MM-DD>` (leave out `--docx` if pandoc is missing).
+  4. Show the report verbatim, then list the files created (Excel, Word, images) with their paths. For each missing tool, say which output is missing and offer to run `powershell -ExecutionPolicy Bypass -File tools\threat-modeler-export\setup.ps1` (Windows) **only if the user says yes**; then remind them to restart VS Code.
+- If saving or exporting fails, say what failed and give the manual command; never retry in a loop.
+
 ## Constraints the agents must respect
 - Target runtimes: **Claude Code** (testing now) and **GitHub Copilot in VS Code** (work environments). Cline with OpenRouter free models is legacy (free models change often; 50 requests/day). Agents must be self-contained (do not rely on `AGENTS.md` being loaded), use runtime-neutral tool roles (page fetch, web search) with a mapping table, keep budgets, and avoid pulling whole web pages into context.
 - Agents never create/edit files or run commands unless that is their explicit purpose; containment/changes are written as `REQUIRES APPROVAL — <role>: <action>`.
