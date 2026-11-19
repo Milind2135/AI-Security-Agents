@@ -139,6 +139,17 @@ Expected results for each example are in [`tests/<agent>/`](tests). In Claude Co
 
 threat-modeler writes its report, diagrams (as Mermaid text), CSV and JSON in the chat. The included exporter turns a saved report into **diagram images** (PNG, JPG, SVG), an **Excel threat register** and a **Word report**. It runs locally and sends nothing online. It needs Python; Node.js with Mermaid CLI for the images and pandoc for Word are optional, and the script still produces everything else if they are missing. Setup and usage: [tools/threat-modeler-export/README.md](tools/threat-modeler-export/README.md). The other agents need no exporter: their report and JSON are the output.
 
+### Using threat-modeler on a real project
+
+For a real application, the usual flow is:
+
+1. Collect the application team's material (design documents, diagrams, code, IaC, API specs) in one folder.
+2. Send the team the **intake questionnaire**: either the blank form [`docs/threat-model-intake.md`](docs/threat-model-intake.md), or the questions the agent prints on its first run.
+3. Collect their answers **in one go**, with `not available` for anything they don't have, and save them as a file.
+4. Run the agent with `intake: <their answers file>`, review and approve the data-flow diagram, then get the full report.
+
+Each unanswered question shows up in the report as a **named weakness the team can fix later, not a silent guess**: the intake checklist marks it `Not provided` with its effect, and readiness and confidence are adjusted. Step-by-step prompts are in the **[threat-modeler guide](docs/threat-modeler-guide.md)**.
+
 ### Getting help: `?` or `help`
 
 Not sure what an agent needs? Select the agent, then send **`?`** or **`help`** on its own. It replies with a short **usage card**: what it does, the inputs it needs, optional settings, copy-and-edit examples, and what it does *not* do (with the agent to use instead). It does no research and uses none of its budget.
