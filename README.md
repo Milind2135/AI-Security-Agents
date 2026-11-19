@@ -12,13 +12,13 @@ Every agent is **analysis-only**, **vendor-neutral** and **evidence-first**: eac
 
 | Agent | What it does | You give it | You get back |
 |---|---|---|---|
-| **[vm-triage](.github/agents/vm-triage.agent.md)** | Researches one CVE from public sources (KEV, EPSS, CVSS, exploitation, IOCs, detections, fixes) and produces a cited 26-section report. | A CVE ID | 26-section report + JSON handoff |
-| **[vulnerability-hunt](.github/agents/vulnerability-hunt.agent.md)** | Takes vm-triage's output plus your inventory and decides, asset by asset, whether you're affected and exposed and how urgently to act, with fix-verification steps and ticket drafts. | vm-triage JSON + SBOM / scanner / CMDB export | Per-asset status, SSVC-style urgency, verification plan, ticket drafts |
-| **[soc-analyst](.github/agents/soc-analyst.agent.md)** | Triages one security alert (sign-in, endpoint, email, network, CI/CD) and recommends one of seven dispositions, with an evidence log, a timeline and ATT&CK mapping. | An alert + related logs | Disposition, evidence log, timeline, ATT&CK mapping |
-| **[cloud-security-analyst](.github/agents/cloud-security-analyst.agent.md)** | Finds real attack paths in cloud IaC, IAM and CSPM data, and triages cloud alerts by correlating them with audit logs. | IaC, IAM policies, CSPM exports — or a cloud alert + audit events | Ranked attack paths, or an alert disposition |
+| **[vm-triage](.github/agents/vm-triage.agent.md)** | Researches one CVE from public sources (KEV, EPSS, CVSS, exploitation, IOCs, detections, fixes) and produces a cited 26-section report. [How to use →](docs/guides/vm-triage.md) | A CVE ID | 26-section report + JSON handoff |
+| **[vulnerability-hunt](.github/agents/vulnerability-hunt.agent.md)** | Takes vm-triage's output plus your inventory and decides, asset by asset, whether you're affected and exposed and how urgently to act, with fix-verification steps and ticket drafts. [How to use →](docs/guides/vulnerability-hunt.md) | vm-triage JSON + SBOM / scanner / CMDB export | Per-asset status, SSVC-style urgency, verification plan, ticket drafts |
+| **[soc-analyst](.github/agents/soc-analyst.agent.md)** | Triages one security alert (sign-in, endpoint, email, network, CI/CD) and recommends one of seven dispositions, with an evidence log, a timeline and ATT&CK mapping. [How to use →](docs/guides/soc-analyst.md) | An alert + related logs | Disposition, evidence log, timeline, ATT&CK mapping |
+| **[cloud-security-analyst](.github/agents/cloud-security-analyst.agent.md)** | Finds real attack paths in cloud IaC, IAM and CSPM data, and triages cloud alerts by correlating them with audit logs. [How to use →](docs/guides/cloud-security-analyst.md) | IaC, IAM policies, CSPM exports — or a cloud alert + audit events | Ranked attack paths, or an alert disposition |
 | **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. [How to use →](docs/guides/threat-modeler.md) | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
-| **[threat-intel-analyst](.github/agents/threat-intel-analyst.agent.md)** | Profiles a threat actor, campaign or indicator set from public sources: ATT&CK techniques, IOCs, attribution with competing hypotheses, published detection rules and STIX-style output. | An actor, campaign or indicator set | Intelligence brief + STIX-style JSON |
-| **[team-manager](.github/agents/team-manager.agent.md)** | Routes a security request to the right agents or human teams in a safe order, then merges their reports into one summary where every conclusion names its source. | A security request (and, later, the specialists' reports) | Routed plan, then one combined summary |
+| **[threat-intel-analyst](.github/agents/threat-intel-analyst.agent.md)** | Profiles a threat actor, campaign or indicator set from public sources: ATT&CK techniques, IOCs, attribution with competing hypotheses, published detection rules and STIX-style output. [How to use →](docs/guides/threat-intel-analyst.md) | An actor, campaign or indicator set | Intelligence brief + STIX-style JSON |
+| **[team-manager](.github/agents/team-manager.agent.md)** | Routes a security request to the right agents or human teams in a safe order, then merges their reports into one summary where every conclusion names its source. [How to use →](docs/guides/team-manager.md) | A security request (and, later, the specialists' reports) | Routed plan, then one combined summary |
 
 ### How they fit together
 
@@ -137,11 +137,17 @@ Expected results for each example are in [`tests/<agent>/`](tests). In Claude Co
 
 ### Step-by-step guides
 
-Most agents need a single prompt (see [Try it](#try-it)). For multi-step work there is a guide per agent:
+Each agent has a short guide: what to give it, the exact prompts, what comes back, and what it will not do.
 
 | Agent | Guide |
 |---|---|
-| threat-modeler | **[docs/guides/threat-modeler.md](docs/guides/threat-modeler.md)**: from the application team's documents to a full threat model in Claude Code: intake form, diagram review, approval and report (no installation needed), plus optional Excel, Word and PNG output |
+| vm-triage | [docs/guides/vm-triage.md](docs/guides/vm-triage.md): one CVE in, public intelligence report out |
+| vulnerability-hunt | [docs/guides/vulnerability-hunt.md](docs/guides/vulnerability-hunt.md): vm-triage output + your inventory, then the status and urgency per asset |
+| soc-analyst | [docs/guides/soc-analyst.md](docs/guides/soc-analyst.md): one alert (plus context), then a disposition |
+| cloud-security-analyst | [docs/guides/cloud-security-analyst.md](docs/guides/cloud-security-analyst.md): posture (attack paths) or triage (cloud alert), with export commands |
+| threat-modeler | **[docs/guides/threat-modeler.md](docs/guides/threat-modeler.md)**: from the application team's documents to a full threat model (no installation needed), plus optional Excel, Word and PNG output |
+| threat-intel-analyst | [docs/guides/threat-intel-analyst.md](docs/guides/threat-intel-analyst.md): actor, campaign or indicators, then a cited brief |
+| team-manager | [docs/guides/team-manager.md](docs/guides/team-manager.md): plan which agents to use, run the steps, combine the reports |
 
 ### Getting help: `?` or `help`
 
