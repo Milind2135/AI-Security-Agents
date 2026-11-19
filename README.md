@@ -101,6 +101,42 @@ Every setup ends up following the **same instruction file**, `.github/agents/<na
 1. Cline has no agent dropdown for these files and loads nothing automatically.
 2. Start a new task in **Act** mode and paste the start prompt from the agent's *Runtime notes* section, e.g. `Read the existing file .github/agents/vm-triage.agent.md (never create or edit it) and follow it exactly for CVE-2021-44228.`
 
+### Requirements
+
+Nothing needs to be installed for the agents themselves: you only need one of the [supported setups](#supported-setups). What differs is the access each agent needs while it runs.
+
+| Agent | Web access | Notes |
+|---|---|---|
+| vm-triage | Required | Fetches public sources (NVD, CISA KEV, FIRST EPSS, vendor advisories) |
+| threat-intel-analyst | Required | Public sources only; internal identifiers are never looked up |
+| vulnerability-hunt | Optional | Vendor advisories for fix details; works from supplied files otherwise |
+| soc-analyst | Optional | Lookups of public IPs and domains only |
+| cloud-security-analyst | Optional | Public references; analysis uses the supplied files |
+| threat-modeler | Optional | Framework references; analysis uses the supplied code and documents |
+| team-manager | None | Reads only the request and the reports you give it |
+
+Approve page-fetch prompts when an agent asks. In Copilot, page fetch works out of the box; web search needs an approved search tool (see [docs/COPILOT-MIGRATION.md](docs/COPILOT-MIGRATION.md)).
+
+### Try it
+
+Every example below uses **synthetic data that is already in this repository**. No real systems or data are needed. Paste a prompt into Claude Code, or pick the agent in Copilot and paste everything after `Use the <agent> subagent.`
+
+| Agent | Prompt |
+|---|---|
+| vm-triage | `@vm-triage CVE-2021-44228` |
+| vulnerability-hunt | `Use the vulnerability-hunt subagent. handoff: tests/vulnerability-hunt/fixtures/handoff-CVE-2021-44228.json inventory: tests/vulnerability-hunt/fixtures/sbom-2026-11-02.cdx.json` |
+| soc-analyst | `Use the soc-analyst subagent. alert: tests/soc-analyst/fixtures/01-auth-signin.json` |
+| cloud-security-analyst | `Use the cloud-security-analyst subagent. mode: triage alert: tests/cloud-security-analyst/fixtures/t1-credential-theft/` |
+| threat-modeler | `Use the threat-modeler subagent. system: tests/threat-modeler/fixtures/01-api-missing-ownership/ intake: skip checkpoint: skip` |
+| threat-intel-analyst | `Use the threat-intel-analyst subagent. subject: Log4Shell exploitation campaigns scope: campaign` |
+| team-manager | `Use the team-manager subagent. reports: tests/team-manager/fixtures/c1-soc-analyst.json tests/team-manager/fixtures/c1-threat-intel-analyst.json` |
+
+Expected results for each example are in [`tests/<agent>/`](tests). In Claude Code, add `Show me the complete report verbatim.` so the full report is shown rather than a summary.
+
+### Optional: export a threat model to images, Excel and Word
+
+threat-modeler writes its report, diagrams (as Mermaid text), CSV and JSON in the chat. The included exporter turns a saved report into **diagram images** (PNG, JPG, SVG), an **Excel threat register** and a **Word report**. It runs locally and sends nothing online. It needs Python; Node.js with Mermaid CLI for the images and pandoc for Word are optional, and the script still produces everything else if they are missing. Setup and usage: [tools/threat-modeler-export/README.md](tools/threat-modeler-export/README.md). The other agents need no exporter: their report and JSON are the output.
+
 ### Getting help: `?` or `help`
 
 Not sure what an agent needs? Select the agent, then send **`?`** or **`help`** on its own. It replies with a short **usage card**: what it does, the inputs it needs, optional settings, copy-and-edit examples, and what it does *not* do (with the agent to use instead). It does no research and uses none of its budget.
