@@ -75,7 +75,7 @@ In tests 1–6 there are no intake answers, so an item is `Provided` only when i
 Prompt: `Use the threat-modeler subagent. system: tests/threat-modeler/fixtures/01-api-missing-ownership/ Show me the complete report verbatim.` (no `intake:`)
 | Must show | Detail |
 |---|---|
-| Preflight | `threat-modeler v1.5 | preflight` lines |
+| Preflight | `threat-modeler v1.6 | preflight` lines |
 | Questionnaire | Four tier tables with Q1–Q25 and the "do not paste secrets / customer data / production logs" warning; Q7 answer column pre-filled `Received: tests/threat-modeler/fixtures/01-api-missing-ownership/` |
 | Stops | No files read, no analysis, no `| result` report |
 
@@ -109,7 +109,8 @@ Show me the complete report verbatim.
 ```
 | Must show | Detail |
 |---|---|
-| Pause, not report | First line `threat-modeler v1.5 | model review (round 1 of 3)`; **no** threat register, no `| result` |
+| Pause, not report | First line `threat-modeler v1.6 | model review (round 1 of 3)`; **no** threat register, no `| result` |
+| Image instruction (v1.6) | The review message contains the line `To see these diagrams as PNG/JPG: save this whole message as a .md file, then run: python tools/threat-modeler-export/tm_export.py <saved file> --diagrams-only` |
 | Readiness | `Proceed with limits` (no code or IaC) |
 | Model | Mermaid DFD; tables for users, assets, components, data stores, flows and trust boundaries, each with a **Source** column (`doc admin-console-design.md:<line>` or `inferred — …`); inferred items under "Check these first"; the admin console reachable from the internet through the reverse proxy |
 | Questions | At most 5, specific |

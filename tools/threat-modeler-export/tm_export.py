@@ -11,6 +11,7 @@ Creates, in the output folder:
 
 No AI, no network calls. Diagram rendering needs the Mermaid CLI (mmdc).
 Usage:  python tm_export.py <report.md> [--out <folder>] [--formats png,jpg,svg] [--docx]
+        python tm_export.py <saved model-review message.md> --diagrams-only   (DFD review images only)
 """
 import argparse, csv, io, json, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
@@ -145,6 +146,8 @@ def main():
     ap.add_argument("--out", help="output folder (default: <report folder>/export)")
     ap.add_argument("--formats", default="png,jpg,svg", help="diagram formats: png, jpg, svg (comma-separated)")
     ap.add_argument("--docx", action="store_true", help="also build report.docx with pandoc")
+    ap.add_argument("--diagrams-only", action="store_true",
+                    help="only render the diagrams (e.g. from a DFD model-review message); no JSON, Excel, report copy or Word")
     a = ap.parse_args()
 
     report = Path(a.report)
@@ -187,6 +190,12 @@ def main():
                     data = candidate
             except json.JSONDecodeError:
                 pass
+
+    if a.diagrams_only:
+        if not diagram_files:
+            print("  ! no Mermaid diagrams found in this file")
+        print(f"Done: {out}")
+        return
 
     if data is not None:
         (out / "threat-model.json").write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")

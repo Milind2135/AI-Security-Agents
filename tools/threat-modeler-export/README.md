@@ -37,6 +37,12 @@ In a managed work environment, installing Node.js, npm packages or pandoc may ne
    ```
 3. Files appear in `...\2026-11-17\export\`. Options: `--formats png,jpg,svg` (default all three), `--out <folder>`.
 
+**DFD review images.** During the model review (before the full report), save the agent's review message as a `.md` file and run:
+```powershell
+python tools\threat-modeler-export\tm_export.py docs\threat-models\<system>\review-round-1.md --diagrams-only
+```
+This writes only the diagram images (`dfd-NN.png/.jpg/.svg`, `deployment-NN.*`) so reviewers can look at a picture instead of Mermaid text.
+
 If a tool is missing, the script says so and still produces everything else (e.g. `.mmd` diagram sources and the Excel file without Mermaid CLI).
 
 ## Security notes
