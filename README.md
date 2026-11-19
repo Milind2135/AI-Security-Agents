@@ -258,7 +258,7 @@ Each agent has **golden tests** in [`tests/<agent>/`](tests) — scenarios, expe
 .claude/agents/     Claude Code entry points (read-only tools)
 .codex/agents/      OpenAI Codex entry points
 AGENTS.md           Shared rules every agent follows
-docs/               Agent template, per-agent changelogs, Copilot setup, threat-model intake form
+docs/               Agent template, per-agent changelogs, Copilot setup, threat-modeler guide and intake form
 tests/              Golden tests, fixtures and baseline reports
 tools/              threat-modeler-export: turns a threat-model report into diagram, spreadsheet and JSON files
 ```
