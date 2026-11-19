@@ -59,6 +59,14 @@ You get a **model for review**:
 - The DFD with labelled elements, trust boundaries and critical interactions (★), plus a deployment view.
 - The readiness result and a **JSON block** at the end. Keep it for the next step.
 
+**View the diagram as an image.** The diagram arrives as Mermaid text. To get PNG/JPG for the review:
+1. Save the whole review message as a file, e.g. ask the main Claude Code session: `Save the complete threat-modeler model review above verbatim to docs/threat-models/<system>/review-round-1.md`
+2. Run the exporter (one-time setup in [its README](../tools/threat-modeler-export/README.md)):
+   ```powershell
+   python tools\threat-modeler-export\tm_export.py docs\threat-models\<system>\review-round-1.md --diagrams-only
+   ```
+3. Open `docs/threat-models/<system>/export/dfd-01.png` (and `deployment-01.png`). Trust boundaries are red dashed boxes; critical flows are thick red lines. Rendering is local; never paste the diagram into an online Mermaid site.
+
 Check the diagram with the application team. If something is wrong, re-run with a correction:
 ```text
 Use the threat-modeler subagent. system: docs/threat-models/<system>/input/ intake: docs/threat-models/<system>/intake-answers.md model: <paste the JSON block> review: <what is wrong, in plain words> Show me the complete output verbatim.
