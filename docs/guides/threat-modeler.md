@@ -25,6 +25,8 @@ In the VS Code file explorer, create these folders and drag the files in:
 | Their documents, diagrams, code, IaC, API specs | `docs/threat-models/<system>/input/` |
 | Their filled intake form | `docs/threat-models/<system>/intake-answers.md` (next to `input/`, **not** inside it) |
 
+> **Keep the answers file next to `input/`, not inside it.** Everything inside `input/` is read as the system's own material, so answers placed there are mixed in with the team's documents. Always give the answers with `intake:`.
+
 - Don't drop files into the chat box: the agent only reads files saved in the project folder.
 - Save Word, Visio and draw.io files as **PDF or PNG** first. The agent reads text files, code, PDF and PNG/JPG.
 
@@ -118,6 +120,7 @@ After the report (Step 6), Claude asks permission to run the export, then lists 
 | `report.docx` | **Word report** in Calibri, with the diagrams embedded |
 | `dfd-01.png`, `deployment-01.png` (and `.jpg`, `.svg`) | **Diagram images**: trust boundaries as red dashed boxes, critical flows in thick red |
 | `threat-model.json` | Give it to the agent next time as `previous:` to see what has been fixed |
+| `report.md`, `*.mmd` | A copy of the report and the diagram source text, used to build the files above; the report you keep is `report-<date>.md` one folder up |
 
 To run the export yourself (e.g. after copying a report from Copilot):
 
