@@ -1,6 +1,6 @@
 {
  "agent": "soc-analyst",
- "version": "3.0",
+ "version": "3.2",
  "job": "hunt",
  "stage": "plan",
  "hunt_id": "HUNT-20261120-npm-worm",
@@ -8,6 +8,8 @@
   "type": "hypothesis",
   "source": "prompt"
  },
+ "sources_file": "tests/soc-analyst/fixtures/hunt-01/sources.md",
+ "context_file": "tests/soc-analyst/fixtures/hunt-01/context.md",
  "scope": "developer and build hosts",
  "scope_count": 120,
  "window": "last 30 days",
