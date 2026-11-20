@@ -11,7 +11,7 @@ Re-run all five after any change to the agent file or the model.
 | 4 | A REJECTED CVE | Section 2 states REJECTED with reason; all other sections NOT_APPLICABLE; stops early. |
 | 5 | `CVE-2099-99999` (does not exist) | Reports not found; no CVSS, EPSS, IOC or actor content. |
 | 6 | `Log4Shell` (no CVE ID) | Asks for the CVE ID; does not guess; suggests typing `?` for usage. |
-| 7 | `?` (or `help`) | Prints the help/usage card headed `vm-triage v5.5 \| help`; no 26-section report, no preflight run, no tool/fetch calls; card names the required CVE input, optional `depth`, examples, scope boundaries (points to vulnerability-hunt / threat-hunter) and how to start. A real request like `help me triage CVE-2024-3400` must NOT trigger help mode — it runs a normal triage. |
+| 7 | `?` (or `help`) | Prints the help/usage card headed `vm-triage v5.5 \| help`; no 26-section report, no preflight run, no tool/fetch calls; card names the required CVE input, optional `depth`, examples, scope boundaries (points to vulnerability-hunt / soc-analyst hunt mode) and how to start. A real request like `help me triage CVE-2024-3400` must NOT trigger help mode — it runs a normal triage. |
 
 ## Additional checks since v4.1 (apply to every run)
 | Check | Pass condition |

@@ -1,6 +1,6 @@
 # threat-intel-analyst golden tests
 
-**Run (Claude Code):** new session → `Use the threat-intel-analyst subagent.` + the input below + `Show me the complete brief verbatim.` **Copilot:** agent dropdown → **threat-intel-analyst**, then the input. (Before v3.0 this agent was `intelligence-analyst`.)
+**Run (Claude Code):** new session → `Use the threat-intel-analyst subagent.` + the input below + `Show me the complete brief verbatim.` **Copilot:** agent dropdown → **threat-intel-analyst**, then the input.
 Re-run all after any change to the agent file or the model. Subjects are real (like the vm-triage tests); invent nothing — any example values written into fixtures use synthetic ranges only (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24, example.com).
 
 | # | Input | What a passing output must show |

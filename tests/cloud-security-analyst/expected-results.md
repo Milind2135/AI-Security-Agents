@@ -1,6 +1,6 @@
 # cloud-security-analyst — answer key for the synthetic fixtures (do NOT give this file to the agent)
 
-Fixtures: `tests/cloud-security-analyst/fixtures/` (all synthetic). Agent version 2.1. Every run must also pass the "Every run" checks in `README.md`. Start each test in a new Claude Code session; add `Show me the complete report verbatim.` to every prompt.
+Fixtures: `tests/cloud-security-analyst/fixtures/` (all synthetic). Agent version 2.2. Every run must also pass the "Every run" checks in `README.md`. Start each test in a new Claude Code session; add `Show me the complete report verbatim.` to every prompt.
 
 ## Test 1 — posture: toxic combination, dedupe, logging gaps (`p1-estate`)
 Prompt: `Use the cloud-security-analyst subagent. mode: posture material: tests/cloud-security-analyst/fixtures/p1-estate/ handoff: tests/vulnerability-hunt/fixtures/handoff-CVE-2021-44228.json`
@@ -10,7 +10,7 @@ Prompt: `Use the cloud-security-analyst subagent. mode: posture material: tests/
 | Unclassified data | `example-reports-archive` has no `data-class` tag → **treated as sensitive** with an `AS-#`; never "low" |
 | Public bucket, public data | `example-marketing-assets` public-read (`terraform/storage.tf`) but tagged `data-class = public` → factors **E + W** only → attack path rated **Medium / P3**, not a toxic combination |
 | De-duplication | The public-bucket finding appears **once** with both sources: Prowler CSV row and CSPM `ISS-1182` |
-| Logging gaps (Section 9) | Trail single-region (`terraform/logging.tf:4`), data events not configured, GuardDuty detector `Not found` (Prowler row) → gaps handed to `detection-engineer` |
+| Logging gaps (Section 9) | Trail single-region (`terraform/logging.tf:4`), data events not configured, GuardDuty detector `Not found` (Prowler row) → gaps handed to the detection / SOC engineering team |
 | Recommendations | For the Critical path: at least one preventive (e.g. restrict the security group / patch via `vulnerability-hunt`) and one detective recommendation, each with Driver, IaC location and "How to verify"; shift-left note pointing to `terraform/network.tf` |
 | Masking | Account ID shown as `…3333` |
 
@@ -55,7 +55,7 @@ Prompt: `Use the cloud-security-analyst subagent. mode: triage alert: tests/clou
 | Masking | Caller shown masked (e.g. `d***@example.com`); subscription ID masked |
 
 ## Test 6 — help
-Prompt: `Use the cloud-security-analyst subagent. ?` (also try `help` and `what do you need`) → the **usage card printed exactly as written in the agent file**, headed `cloud-security-analyst v2.1 | help`: both modes, minimum / advised inputs per mode, the context-file template, three example prompts, the export commands, what you get, what not to give; **no** preflight analysis, no files read, no tool calls. Negative check: `help me triage tests/cloud-security-analyst/fixtures/t2-expected-change/` is a **real triage request**, not the help card.
+Prompt: `Use the cloud-security-analyst subagent. ?` (also try `help` and `what do you need`) → the **usage card printed exactly as written in the agent file**, headed `cloud-security-analyst v2.2 | help`: both modes, minimum / advised inputs per mode, the context-file template, three example prompts, the export commands, what you get, what not to give; **no** preflight analysis, no files read, no tool calls. Negative check: `help me triage tests/cloud-security-analyst/fixtures/t2-expected-change/` is a **real triage request**, not the help card.
 
 ## Test 7 — scope routing
 Prompt: `Use the cloud-security-analyst subagent. alert: tests/soc-analyst/fixtures/05-endpoint-office-child.json` → endpoint (non-cloud) alert → routed to **`soc-analyst`** and stops.

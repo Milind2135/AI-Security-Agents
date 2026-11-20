@@ -88,10 +88,19 @@ The agent **writes the queries; you run them** in your SIEM and give back the re
 |---|---|---|
 | `mode: hunt` | Yes | Switches from triage to hunting |
 | Starting point (one) | Yes | `hypothesis:` (plain words), `intel:` (threat-intel-analyst JSON), `vuln:` (vulnerability-hunt JSON), `escalation:` (an escalated soc-analyst report), or `baseline:` ("what is unusual in PowerShell use on servers") |
-| `siem:` | Recommended | Query language: `kql` (Sentinel / Defender), `esql` (Elastic), `spl` (Splunk) or `sigma` (default, vendor-neutral) |
+| `siem:` | Recommended | Your platform or query language (default: `sigma`, vendor-neutral). See the table below. |
 | `sources:` | Recommended | A note listing which logs you have, their table/index and field names, and 5–10 sample rows each. Without it, queries use generic field names marked `ADJUST FIELD NAMES`. |
 | `scope:` / `window:` | Recommended | What's in scope **with a count** (e.g. `developer hosts (120)`) and the time range (default: last 30 days) |
 | `context:` | Recommended | What's normal: admin tools, VPN ranges, service accounts |
+
+**Supported platforms (`siem:`)**
+
+| Support | Platforms (value to type) |
+|---|---|
+| **Main**: queries written directly | Microsoft Sentinel / Defender (`kql`), Elastic (`esql`), Splunk (`spl`), vendor-neutral Sigma (`sigma`) |
+| **Extended**: query marked `SYNTAX UNVERIFIED — test in your console first`, plus a Sigma version to cross-check | CrowdStrike Falcon (`crowdstrike` / `cql`), SentinelOne (`sentinelone`), Palo Alto Cortex XDR (`cortex` / `xql`), Google SecOps / Chronicle (`chronicle` / `udm`), IBM QRadar (`qradar` / `aql`), Sumo Logic (`sumo`), Wazuh (`wazuh`), Carbon Black (`carbonblack`), Datadog (`datadog`) |
+
+For Extended platforms, always test the query in your console before relying on a "no results". The Sigma version can be converted with the official [sigma-cli](https://github.com/SigmaHQ/sigma-cli) and your platform's backend.
 
 Example `sources.md`: see [`tests/soc-analyst/fixtures/hunt-01/sources.md`](../../tests/soc-analyst/fixtures/hunt-01/sources.md).
 

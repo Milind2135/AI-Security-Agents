@@ -5,7 +5,7 @@ argument-hint: 'subject: <actor | campaign name | indicator set>  [scope: campai
 tools: ['web', 'web/fetch', 'tavily/*']
 ---
 
-<!-- version: 3.1 | changelog: docs/changelog/threat-intel-analyst.md | tests: tests/threat-intel-analyst/ | runtimes: GitHub Copilot (this file), Claude Code (.claude/agents/threat-intel-analyst.md points here) | renamed from intelligence-analyst in 3.0 -->
+<!-- version: 3.1 | changelog: docs/changelog/threat-intel-analyst.md | tests: tests/threat-intel-analyst/ | runtimes: GitHub Copilot (this file), Claude Code (.claude/agents/threat-intel-analyst.md points here) -->
 
 # Threat Intel Analyst Agent — Public Threat Intelligence
 

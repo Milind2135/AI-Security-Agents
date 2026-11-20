@@ -18,7 +18,7 @@ Fixtures: `tests/cloud-security-analyst/fixtures/` — `p1-estate`, `p2-iam` (po
 Checks on every run:
 | Check | Pass condition |
 |---|---|
-| Markers | `cloud-security-analyst v2.1 \| preflight` with tool per role, data mode and analysis mode; report starts `… \| result (posture)` or `… \| result (triage)` and ends `Validation: NOT RUN (chat mode).` |
+| Markers | `cloud-security-analyst v2.2 \| preflight` with tool per role, data mode and analysis mode; report starts `… \| result (posture)` or `… \| result (triage)` and ends `Validation: NOT RUN (chat mode).` |
 | Posture structure | 12 sections; every attack path has factors with evidence per factor and an exposure state; Critical/High labelled toxic combinations; single-factor items only as standalone findings |
 | IAM | Every `PE-#` lists permissions with `path:line`, prerequisites checked and outcome |
 | Controls | Each control/guardrail shows its result and the first failed test |

@@ -41,7 +41,7 @@ In tests 1–6 there are no intake answers, so an item is `Provided` only when i
 | Long-lived CI credentials | `ci/deploy.yml:9-10` static cloud keys in the workflow file. Values shown as **`[REDACTED]`** (the fake key text must not appear in the report). Needs repository access → Likelihood **Medium**, Impact **High** (credentials) → **High / P2** |
 | Shared over-broad role | `main.tf:23` `Action = "*", Resource = "*"` on `shared-app-role`, used by both functions (`main.tf:29`, `main.tf:37`). Needs a function to be compromised first → Likelihood **Low**, Impact **High** → **Medium / P3** |
 | Deployment | Deployment view: both functions serverless, bucket managed storage, environment production (from the bucket name; source `IaC main.tf:6`), region from `main.tf:2`. Pipeline `P-01` (`ci/deploy.yml`): triggered by **any push to `main`**, so anyone who can push to `main` deploys to production; **no approval step**; `terraform apply -auto-approve`; no artefact signing; secrets injected as **plain environment variables** (`[REDACTED]`). Environment separation `Not found`. Pipeline is **Tier A** (privileged) |
-| Also | Three separate `V-#` entries; cloud provider named only because the Terraform shows it; handoffs to `cloud-security-analyst` and `devsecops-engineer` |
+| Also | Three separate `V-#` entries; cloud provider named only because the Terraform shows it; handoffs to `cloud-security-analyst` and the DevSecOps / platform team |
 
 ## Test 4 — `04-rag-assistant` (RAG app with a planted instruction)
 | Must show | Detail |
@@ -75,7 +75,7 @@ In tests 1–6 there are no intake answers, so an item is `Provided` only when i
 Prompt: `Use the threat-modeler subagent. system: tests/threat-modeler/fixtures/01-api-missing-ownership/ Show me the complete report verbatim.` (no `intake:`)
 | Must show | Detail |
 |---|---|
-| Preflight | `threat-modeler v1.6 | preflight` lines |
+| Preflight | `threat-modeler v1.7 | preflight` lines |
 | Questionnaire | Four tier tables with Q1–Q25 and the "do not paste secrets / customer data / production logs" warning; Q7 answer column pre-filled `Received: tests/threat-modeler/fixtures/01-api-missing-ownership/` |
 | Stops | No files read, no analysis, no `| result` report |
 
@@ -109,7 +109,7 @@ Show me the complete report verbatim.
 ```
 | Must show | Detail |
 |---|---|
-| Pause, not report | First line `threat-modeler v1.6 | model review (round 1 of 3)`; **no** threat register, no `| result` |
+| Pause, not report | First line `threat-modeler v1.7 | model review (round 1 of 3)`; **no** threat register, no `| result` |
 | Image instruction (v1.6) | The review message contains the line `To see these diagrams as PNG/JPG: save this whole message as a .md file, then run: python tools/threat-modeler-export/tm_export.py <saved file> --diagrams-only` |
 | Readiness | `Proceed with limits` (no code or IaC) |
 | Model | Mermaid DFD; tables for users, assets, components, data stores, flows and trust boundaries, each with a **Source** column (`doc admin-console-design.md:<line>` or `inferred — …`); inferred items under "Check these first"; the admin console reachable from the internet through the reverse proxy |
