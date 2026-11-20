@@ -1,0 +1,11 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "MAIL-7781",
+  "source": "Email security gateway",
+  "rule": "Malicious attachment detected",
+  "severity": "High",
+  "alert_time": "2026-11-03T07:22:10Z",
+  "message": {"from": "billing@vendor-invoices.example", "to": ["dave@example.com"], "subject": "Overdue invoice 4471", "attachment": "Invoice_4471.iso", "attachment_sha256": "0000000000000000000000000000000000000000000000000000000000000008"},
+  "gateway_sandbox": {"verdict": "malicious", "family": "loader (generic)", "detail": "ISO contains LNK that launches a script to download a second stage"},
+  "action": "quarantined before delivery (not delivered to any mailbox)"
+}

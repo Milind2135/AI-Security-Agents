@@ -1,0 +1,14 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "EDR-2207",
+  "source": "EDR",
+  "rule": "Outbound connection to suspicious IP",
+  "severity": "High",
+  "alert_time": "2026-11-03T02:14:09Z",
+  "host": "hv-node07.corp.example.com",
+  "host_ip": "10.20.30.47",
+  "process": {"image": "C:\\Program Files\\HyperHost\\hh-agent.exe", "signer": "HyperHost Inc. (valid)", "pid": 4412, "parent": "services.exe"},
+  "network": {"direction": "outbound", "remote_ip": "198.51.100.25", "remote_port": 8443, "protocol": "TCP", "result": "ConnectionFailed", "action": "blocked by host firewall policy FW-OUT-12"},
+  "threat_intel_match": {"list": "community IP blocklist", "listed_on": "2026-05-10", "reason": "scanning"},
+  "other_events": "none supplied"
+}

@@ -1,0 +1,52 @@
+{
+ "_note": "SYNTHETIC test fixture, abbreviated threat-intel-analyst JSON. Invented campaign; not real intelligence.",
+ "agent": "threat-intel-analyst",
+ "version": "3.0",
+ "tlp": "CLEAR",
+ "subject": "example-colors npm compromise",
+ "scope": "campaign",
+ "data_as_of": "2026-11-16T08:00:00Z",
+ "stix_objects": [
+  {
+   "type": "campaign",
+   "name": "Example Colors compromise",
+   "first_seen": "2026-11-14",
+   "last_seen": null,
+   "source": "S1"
+  },
+  {
+   "type": "indicator",
+   "indicator_type": "ipv4",
+   "value": "203.0.113[.]45",
+   "valid_from": "2026-11-14",
+   "confidence": "Medium",
+   "source": "S2",
+   "note": "sinkholed by a researcher since 2026-11-10 per S2"
+  },
+  {
+   "type": "indicator",
+   "indicator_type": "domain",
+   "value": "pkg-update[.]example",
+   "valid_from": "2026-11-14",
+   "confidence": "High",
+   "source": "S1"
+  },
+  {
+   "type": "attack-pattern",
+   "mitre_id": "T1195.002",
+   "name": "Compromise Software Supply Chain",
+   "mapping_origin": "SOURCE-STATED",
+   "source": "S1"
+  }
+ ],
+ "detections": [
+  {
+   "platform": "Sigma",
+   "origin": "ANALYST-SUGGESTED",
+   "rule_id": null,
+   "source": "S1"
+  }
+ ],
+ "related_cves": [],
+ "confidence": "Medium"
+}

@@ -1,0 +1,13 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "ALRT-1001",
+  "source": "Identity provider sign-in analytics",
+  "rule": "Impossible travel",
+  "severity": "Medium",
+  "alert_time": "2026-11-03T09:12:40+05:30",
+  "events": [
+    {"time": "2026-11-03T09:07:10+05:30", "user": "alice@example.com", "result": "success", "ip": "192.0.2.15", "location": "Office network", "mfa": "passed (authenticator app)", "device": "managed laptop LT-0412"},
+    {"time": "2026-11-03T09:12:31+05:30", "user": "alice@example.com", "result": "success", "ip": "203.0.113.10", "location": "Another country (geo-IP)", "mfa": "passed (authenticator app)", "device": "managed laptop LT-0412"}
+  ],
+  "post_login_activity": "none recorded in the alert"
+}

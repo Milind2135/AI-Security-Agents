@@ -1,0 +1,71 @@
+{
+  "_note": "SYNTHETIC TEST DATA - one of two alerts for the same incident (see 09-shai-hulud-elastic.json). Modelled on the general shape of a CrowdStrike Falcon detection export and on publicly reported Shai-Hulud-style npm worm behaviour; field names are approximate, not an exact vendor schema. Every package name, hostname, user, IP, hash and token is fake.",
+  "detection_id": "ldt:0000aaaa1111bbbb2222cccc3333dddd:4294967401",
+  "created_timestamp": "2026-11-03T11:42:20Z",
+  "max_severity_displayname": "High",
+  "max_confidence": 80,
+  "status": "new",
+  "device": {
+    "hostname": "DEV-LT-0388",
+    "platform_name": "Windows",
+    "os_version": "Windows 11",
+    "local_ip": "10.40.12.88",
+    "external_ip": "192.0.2.40",
+    "machine_domain": "corp.example.com",
+    "ou": ["Engineering", "Developer Workstations"]
+  },
+  "behaviors": [
+    {
+      "timestamp": "2026-11-03T11:42:06Z",
+      "tactic": "Execution",
+      "technique_id": "T1059.007",
+      "display_name": "NpmLifecycleScriptExecution",
+      "description": "npm ran a package install script that launched a large obfuscated JavaScript bundle.",
+      "filename": "node.exe",
+      "cmdline": "node bundle.js",
+      "user_name": "erin",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000501",
+      "parent_details": {
+        "parent_cmdline": "\"C:\\Program Files\\nodejs\\node.exe\" npm-cli.js install",
+        "working_directory": "C:\\src\\payments-web"
+      },
+      "package_context": "postinstall script of @example-scope/color-logs@4.2.1 (dependency of example-org/payments-web)",
+      "pattern_disposition_description": "Detection, standard detection."
+    },
+    {
+      "timestamp": "2026-11-03T11:42:09Z",
+      "tactic": "Credential Access",
+      "technique_id": "T1552.001",
+      "display_name": "SecretScannerLaunchedByScript",
+      "description": "The script downloaded and ran a secret-scanning tool against the user's home directory and read credential files.",
+      "filename": "secret-scan.exe",
+      "cmdline": "C:\\Users\\erin\\AppData\\Local\\Temp\\ss\\secret-scan.exe filesystem C:\\Users\\erin --json",
+      "user_name": "erin",
+      "files_accessed": [
+        "C:\\Users\\erin\\.npmrc",
+        "C:\\Users\\erin\\.aws\\credentials",
+        "C:\\Users\\erin\\.git-credentials",
+        "C:\\Users\\erin\\.config\\gh\\hosts.yml"
+      ],
+      "script_snippet": "// found: //registry.npmjs.org/:_authToken=npm_EXAMPLE0000000000000000NOTREAL ; github token ghp_EXAMPLE000000000000000000000NOTREAL",
+      "pattern_disposition_description": "Detection, standard detection."
+    },
+    {
+      "timestamp": "2026-11-03T11:42:14Z",
+      "tactic": "Exfiltration",
+      "technique_id": "T1567",
+      "display_name": "ScriptApiCallsAfterCredentialRead",
+      "description": "The script made outbound HTTPS calls to a code-hosting API and to an unrecognised web endpoint shortly after reading credential files.",
+      "filename": "node.exe",
+      "user_name": "erin",
+      "network_accesses": [
+        {"remote_address": "198.51.100.10", "remote_port": 443, "domain": "api.github.example", "bytes_sent": 51220, "status": "established"},
+        {"remote_address": "203.0.113.80", "remote_port": 443, "domain": "hooks.collector.example", "bytes_sent": 18342, "status": "established"},
+        {"remote_address": "198.51.100.20", "remote_port": 443, "domain": "registry.npm.example", "bytes_sent": 734002, "status": "established"}
+      ],
+      "pattern_disposition_description": "Detection, standard detection."
+    }
+  ],
+  "sensor_action": "none (detect-only policy on developer workstations)",
+  "context": "@example-scope/color-logs 4.2.1 was published 2026-11-03T09:05Z; 4.2.0 (2025-07) had no install scripts. payments-web picked it up via an automated dependency-update PR merged at 11:30Z and erin ran npm install at 11:42Z."
+}

@@ -1,0 +1,6 @@
+{
+  "theme": "neutral",
+  "securityLevel": "strict",
+  "themeVariables": { "fontSize": "16px", "fontFamily": "Arial, Helvetica, sans-serif" },
+  "flowchart": { "htmlLabels": true, "wrappingWidth": 260, "nodeSpacing": 50, "rankSpacing": 70, "padding": 12 }
+}
