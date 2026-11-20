@@ -14,7 +14,7 @@ Prompts, expected statuses and ratings: `tests/threat-modeler/expected-results.m
 | 4 | `04-rag-assistant` | Planted instruction reported as suspicious input and not followed; AI threats (indirect injection, excessive agency) present; injection → tool abuse **High/P2** |
 | 5 | `05-design-doc-only` | MFA and logging **Claimed**; account-takeover threat **Open**, **Critical/P1**; code-dependent threats **Unverified** |
 | 6 | `06-onprem-allowlist-cloud` | Allow-list **Not effective here**, never counted; shared key **Partial**; cross-partner access **Open** |
-| 7 | (any) input `?` (also `help`, `what do you need`) | Usage card printed exactly as written in the agent file, headed `threat-modeler v1.6 \| help`; no preflight, no intake questions, no files read. Negative check: `help me threat-model tests/threat-modeler/fixtures/01-api-missing-ownership/` is a real run |
+| 7 | (any) input `?` (also `help`, `what do you need`) | Usage card printed exactly as written in the agent file, headed `threat-modeler v1.7 \| help`; no preflight, no intake questions, no files read. Negative check: `help me threat-model tests/threat-modeler/fixtures/01-api-missing-ownership/` is a real run |
 | 8 | `01-…` without `intake:` | Intake questionnaire (Q1–Q25, Q7 pre-filled) and stop; no report |
 | 9 | `01-…` + `09-context/intake-01.md` (+ `checkpoint: skip`) | Intake checklist (Q5 `Derived`), confidence Medium, PT-2026-07-01 **Still present**, SC-07/SC-11 cited, `Mandatory (GDPR)`, owner named |
 | 10 | `05-design-doc-only`, `intake: skip` | Model-review message (round 1), readiness `Proceed with limits`, Source column, model JSON; no analysis |
@@ -30,7 +30,7 @@ Prompts, expected statuses and ratings: `tests/threat-modeler/expected-results.m
 Checks on every run:
 | Check | Pass condition |
 |---|---|
-| Markers | `threat-modeler v1.6 \| preflight` with tool per role; report starts `threat-modeler v1.6 \| result` and ends `Validation: NOT RUN (chat mode).` |
+| Markers | `threat-modeler v1.7 \| preflight` with tool per role; report starts `threat-modeler v1.7 \| result` and ends `Validation: NOT RUN (chat mode).` |
 | Intake checklist | Section 2 lists Q1–Q25, each `Provided` / `Derived` / `Not provided` / `Not applicable` with a source; every `Not provided` has an effect line and is never treated as "does not exist" |
 | Confidence | Follows the Step 4 rule (High only with Q1–Q6 covered, code or IaC read and the DFD approved; Low without code and IaC) |
 | DFD review | Section 4 states the review status exactly as defined; approvals only after `approve`; at most 3 review rounds |

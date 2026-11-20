@@ -14,7 +14,7 @@ Every agent is **analysis-only**, **vendor-neutral** and **evidence-first**: eac
 |---|---|---|---|
 | **[vm-triage](.github/agents/vm-triage.agent.md)** | Researches one CVE from public sources (KEV, EPSS, CVSS, exploitation, IOCs, detections, fixes) and produces a cited 26-section report. [How to use →](docs/guides/vm-triage.md) | A CVE ID | 26-section report + JSON handoff |
 | **[vulnerability-hunt](.github/agents/vulnerability-hunt.agent.md)** | Takes vm-triage's output plus your inventory and decides, asset by asset, whether you're affected and exposed and how urgently to act, with fix-verification steps and ticket drafts. [How to use →](docs/guides/vulnerability-hunt.md) | vm-triage JSON + SBOM / scanner / CMDB export | Per-asset status, SSVC-style urgency, verification plan, ticket drafts |
-| **[soc-analyst](.github/agents/soc-analyst.agent.md)** | Triages one security alert (sign-in, endpoint, email, network, CI/CD) and recommends one of seven dispositions, with an evidence log, a timeline and ATT&CK mapping. [How to use →](docs/guides/soc-analyst.md) | An alert + related logs | Disposition, evidence log, timeline, ATT&CK mapping |
+| **[soc-analyst](.github/agents/soc-analyst.agent.md)** | Two jobs: **triages** one security alert (sign-in, endpoint, email, network, CI/CD) and recommends one of seven dispositions; or **hunts** (`mode: hunt`) for threats no alert caught, writing summarising SIEM queries (KQL, ES\|QL, SPL, Sigma; plus CrowdStrike, SentinelOne, Cortex XDR, Google SecOps, QRadar, Sumo Logic, Wazuh, Carbon Black and Datadog, marked as unverified syntax) and analysing the exported results. [How to use →](docs/guides/soc-analyst.md) | Triage: an alert + related logs. Hunt: a hypothesis, threat-intel or vulnerability-hunt report, then the query results | Triage: disposition, evidence log, timeline, ATT&CK. Hunt: Found / Not found / Inconclusive with data coverage |
 | **[cloud-security-analyst](.github/agents/cloud-security-analyst.agent.md)** | Finds real attack paths in cloud IaC, IAM and CSPM data, and triages cloud alerts by correlating them with audit logs. [How to use →](docs/guides/cloud-security-analyst.md) | IaC, IAM policies, CSPM exports — or a cloud alert + audit events | Ranked attack paths, or an alert disposition |
 | **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. [How to use →](docs/guides/threat-modeler.md) | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
 | **[threat-intel-analyst](.github/agents/threat-intel-analyst.agent.md)** | Profiles a threat actor, campaign or indicator set from public sources: ATT&CK techniques, IOCs, attribution with competing hypotheses, published detection rules and STIX-style output. [How to use →](docs/guides/threat-intel-analyst.md) | An actor, campaign or indicator set | Intelligence brief + STIX-style JSON |
@@ -27,7 +27,9 @@ flowchart LR
     R([Security request]) --> TM[team-manager<br/>route & sequence]
     TM --> VT[vm-triage<br/>public CVE intel]
     VT -- JSON handoff --> VH[vulnerability-hunt<br/>am I affected?]
-    TM --> SOC[soc-analyst<br/>alert triage]
+    TM --> SOC[soc-analyst<br/>alert triage & hunts]
+    VH -. affected & exposed .-> SOC
+    TI -. hunt ideas .-> SOC
     TM --> CSA[cloud-security-analyst<br/>attack paths]
     TM --> THM[threat-modeler<br/>design review]
     TM --> TI[threat-intel-analyst<br/>actor / campaign]
@@ -110,7 +112,7 @@ Nothing needs to be installed for the agents themselves: you only need one of th
 | vm-triage | One CVE ID typed in the prompt (no files) | Required | Fetches public sources (NVD, CISA KEV, FIRST EPSS, vendor advisories) |
 | threat-intel-analyst | A threat-actor or campaign name, or a list of indicators (IPs, domains, hashes, package names) typed in the prompt; optional vm-triage JSON | Required | Public sources only; internal identifiers are never looked up |
 | vulnerability-hunt | vm-triage JSON **plus** an inventory: SBOM (CycloneDX/SPDX JSON), scanner or CMDB export (CSV/JSON), package or image lists; optional exposure lists, firewall/security-group rules, controls notes (CSV, JSON, Markdown), source-code folder | Optional | Vendor advisories for fix details; works from supplied files otherwise |
-| soc-analyst | Alert JSON, log excerpts (JSON, CSV, text), email headers or `.eml`, EDR process tree; optional context notes (Markdown/text) | Optional | Lookups of public IPs and domains only |
+| soc-analyst | Triage: alert JSON, log excerpts (JSON, CSV, text), email headers or `.eml`, EDR process tree; optional context notes. Hunt: a hypothesis or an upstream report (JSON), a data-sources note, then query results (CSV/JSON) | Optional | Lookups of public IPs and domains only; hunt queries are run by you in your SIEM |
 | cloud-security-analyst | **Posture:** IaC (Terraform, CloudFormation, Bicep/ARM, Kubernetes, Helm), CSPM or scanner exports (CSV/JSON), IAM policy JSON. **Triage:** cloud alert JSON plus audit events (CloudTrail, Azure Activity, GCP Audit Logs) | Optional | Public references; analysis uses the supplied files |
 | threat-modeler | A folder of system material: design documents (PDF, Markdown, text), diagrams (PNG, JPG), source code, IaC, API specs (OpenAPI/YAML/JSON), pipeline files; optional filled intake form (Markdown) | Optional | Framework references; analysis uses the supplied code and documents |
 | team-manager | A request in plain words with file paths; optional agent reports or their JSON to combine | None | Reads only the request and the reports you give it |
@@ -128,6 +130,7 @@ Every example below uses **synthetic data that is already in this repository**. 
 | vm-triage | `@vm-triage CVE-2021-44228` |
 | vulnerability-hunt | `Use the vulnerability-hunt subagent. handoff: tests/vulnerability-hunt/fixtures/handoff-CVE-2021-44228.json inventory: tests/vulnerability-hunt/fixtures/sbom-2026-11-02.cdx.json` |
 | soc-analyst | `Use the soc-analyst subagent. alert: tests/soc-analyst/fixtures/01-auth-signin.json` |
+| soc-analyst (hunt) | `Use the soc-analyst subagent. mode: hunt plan: tests/soc-analyst/fixtures/hunt-01/hunt-plan.json results: tests/soc-analyst/fixtures/hunt-01/Q1.csv tests/soc-analyst/fixtures/hunt-01/Q2.csv tests/soc-analyst/fixtures/hunt-01/Q3.csv tests/soc-analyst/fixtures/hunt-01/Q4.csv coverage: Q1, Q2 and Q4 covered 112 of 120 hosts; Q3 covered the whole GitHub org` |
 | cloud-security-analyst | `Use the cloud-security-analyst subagent. mode: triage alert: tests/cloud-security-analyst/fixtures/t1-credential-theft/` |
 | threat-modeler | `Use the threat-modeler subagent. system: tests/threat-modeler/fixtures/01-api-missing-ownership/ intake: skip checkpoint: skip` |
 | threat-intel-analyst | `Use the threat-intel-analyst subagent. subject: Log4Shell exploitation campaigns scope: campaign` |
@@ -143,7 +146,7 @@ Each agent has a short guide: what to give it, the exact prompts, what comes bac
 |---|---|
 | vm-triage | [docs/guides/vm-triage.md](docs/guides/vm-triage.md): one CVE in, public intelligence report out |
 | vulnerability-hunt | [docs/guides/vulnerability-hunt.md](docs/guides/vulnerability-hunt.md): vm-triage output + your inventory, then the status and urgency per asset |
-| soc-analyst | [docs/guides/soc-analyst.md](docs/guides/soc-analyst.md): one alert (plus context), then a disposition |
+| soc-analyst | [docs/guides/soc-analyst.md](docs/guides/soc-analyst.md): triage one alert (plus context), then a disposition; or hunt: plan queries, run them in your SIEM, get Found / Not found / Inconclusive |
 | cloud-security-analyst | [docs/guides/cloud-security-analyst.md](docs/guides/cloud-security-analyst.md): posture (attack paths) or triage (cloud alert), with export commands |
 | threat-modeler | **[docs/guides/threat-modeler.md](docs/guides/threat-modeler.md)**: from the application team's documents to a full threat model (no installation needed), plus optional Excel, Word and PNG output |
 | threat-intel-analyst | [docs/guides/threat-intel-analyst.md](docs/guides/threat-intel-analyst.md): actor, campaign or indicators, then a cited brief |
