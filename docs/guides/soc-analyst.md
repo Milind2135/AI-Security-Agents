@@ -216,7 +216,7 @@ Use the soc-analyst subagent. mode: hunt hypothesis: a malicious npm package is 
 
 To try it with the synthetic test data instead, use `sources: tests/soc-analyst/fixtures/hunt-01/sources.md context: tests/soc-analyst/fixtures/hunt-01/context.md`.
 
-Or start from another agent's output, e.g. `mode: hunt intel: incidents/case-12/threat-intel.json siem: kql`.
+Or start from another agent's output; see [Hunting from another agent's report](#hunting-from-another-agents-report) below.
 
 You get a **hunt plan** (`soc-analyst vX.Y | hunt plan`): up to 3 hypotheses, each with an **ABLE** table (Actor, Behaviour, Location, Evidence), a data check, and **ready-to-run queries**. Each query comes with *what a hit means*, *what no hit means* and the file name to export to (`Q1.csv`, …). Claude saves the plan as `hunt-plan.md` in the hunt folder.
 
@@ -239,6 +239,47 @@ Claude passes the plan and your files to the agent. (Without Claude's help, or i
 | **INCONCLUSIVE** | Leads that need a second look, a query that failed or wasn't run, a results file too large, or coverage below 90% (or unknown) |
 
 The report also gives coverage per hypothesis, follow-up (pass-2) queries for the few suspicious hosts, `REQUIRES APPROVAL` actions, and **detection candidates**: queries that worked well, for your detection team to turn into rules.
+
+### Hunting from another agent's report
+
+A common real-world flow: [threat-intel-analyst](threat-intel-analyst.md) researches a campaign, then soc-analyst checks **your** logs for it. The same pattern works with a [vulnerability-hunt](vulnerability-hunt.md) report (`vuln:`) or an escalated soc-analyst triage report (`escalation:`).
+
+**Step A: get the brief** (Claude Code chat, select **@threat-intel-analyst**):
+
+```text
+subject: Shai-Hulud npm worm scope: campaign
+```
+
+**Step B: save its JSON block to a file** (same chat):
+
+```text
+Save only the JSON block from the threat-intel-analyst report above to incidents/notes/intel-shai-hulud.json
+```
+
+**Step C: start the hunt with the brief *and* your environment** (select **@soc-analyst**):
+
+```text
+mode: hunt intel: incidents/notes/intel-shai-hulud.json siem: kql sources: incidents/notes/sources.md context: incidents/notes/context.md scope: developer laptops (150) window: last 30 days
+```
+
+Then continue as usual: run the queries in your SIEM and reply `results ready` with coverage notes.
+
+> **Don't just say "hand the JSON to soc-analyst".** That passes the intel but not your environment, so you get vendor-neutral Sigma with generic field names (`ADJUST FIELD NAMES`), no scope count (so no coverage judgement), and no knowledge of what is normal for you. Always add `siem:`, `sources:`, `context:`, `scope:` and `window:`.
+
+What soc-analyst takes from the brief:
+
+| From the brief | Becomes |
+|---|---|
+| IPs and domains | Network queries: which hosts connected to them (EDR network, firewall, proxy, DNS logs) |
+| File hashes | Process / file queries: where these files appeared or ran |
+| Package names and versions | Which machines installed them |
+| ATT&CK techniques and behaviours | Behaviour queries that still work after the attacker changes IPs and domains |
+| Hunting ideas | Hypotheses with ABLE tables |
+
+Things to know:
+- It hunts **in your logs**: it never scans, pings or connects to anything, so it only sees what your logs contain (see coverage and visibility).
+- **IOCs go stale quickly**; a clean IOC sweep alone is weak evidence, which is why behaviour queries are included.
+- **One way only:** your internal hostnames and users are never sent back to the web, and soc-analyst does not re-research the campaign.
 
 ### Tips
 
