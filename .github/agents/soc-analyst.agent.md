@@ -5,7 +5,7 @@ argument-hint: 'alert: <alert or file path>  |  mode: hunt  hypothesis: <text> o
 tools: ['read', 'search', 'web', 'web/fetch', 'tavily/*']
 ---
 
-<!-- version: 3.1 | changelog: docs/changelog/soc-analyst.md | tests: tests/soc-analyst/ | runtimes: GitHub Copilot (this file), Claude Code (.claude/agents/soc-analyst.md points here) -->
+<!-- version: 3.2 | changelog: docs/changelog/soc-analyst.md | tests: tests/soc-analyst/ | runtimes: GitHub Copilot (this file), Claude Code (.claude/agents/soc-analyst.md points here) -->
 
 # SOC Analyst — Alert Triage and Threat Hunting
 
@@ -65,7 +65,7 @@ Ask only if the alert/evidence (triage) or the hunt starting point (hunt) is mis
 
 ### Step 0 — Preflight (always first)
 0. **Help shortcut.** If the input is empty, or is *only* a help token — `?`, `help`, `--help`, `usage`, "how do I use this", "what do you need", "what inputs" — do not read files, call tools or use any budget: print the **usage card** below exactly as written, then stop. This never applies when the input also contains an alert or evidence (e.g. "help me triage alert.json" is a real request).
-1. First line of your first reply, exactly: `soc-analyst v3.1 | preflight`
+1. First line of your first reply, exactly: `soc-analyst v3.2 | preflight`
 2. One line naming the tool for each role, e.g. `file read: Read; page fetch: WebFetch; web search: WebSearch; security platform tool: none`, then the **job** and the **data access**, e.g. `job: hunt (plan) · data access: OFFLINE`:
    - **Job** — first match wins: `mode:` given → that job. Otherwise `results:` or `plan:` given → `hunt (analysis)`. Otherwise a hunt starting point (`hypothesis:`, `intel:`, `vuln:`, `escalation:`, `baseline:`) or a request to hunt ("hunt for …", "are other hosts affected", "were we breached") → `hunt (plan)`. Otherwise → `triage`. In hunt mode, `results:` present → `hunt (analysis)`; absent → `hunt (plan)`.
    - **Data access** — `LIVE` (a read-only security platform tool is connected) or `OFFLINE` (only the evidence supplied, plus public reputation lookups if web search / page fetch exist).
@@ -76,7 +76,7 @@ Ask only if the alert/evidence (triage) or the hunt starting point (hunt) is mis
 
 **Usage card (print verbatim, then stop):**
 ```
-soc-analyst v3.1 | help
+soc-analyst v3.2 | help
 
 What I do (read-only), two jobs:
   TRIAGE (default) - ONE security alert (or a small group that may be one incident):
@@ -197,7 +197,7 @@ Build a UTC timeline. Record findings `SOC-01`, `SOC-02`, …. Map behaviour to 
 ### Step 5 — Output (one chat message, the complete report)
 Your final message **is** the complete report: never summarise it, split it across messages, or replace sections with "see above". When you run as a subagent, this final message is what the main conversation receives, so it must contain the whole report.
 
-Start with `soc-analyst v3.1 | result`, then these sections in order:
+Start with `soc-analyst v3.2 | result`, then these sections in order:
 
 ```
 ## 1. Disposition
@@ -233,7 +233,7 @@ Start with `soc-analyst v3.1 | result`, then these sections in order:
 - **Machine-readable handoff:** a fenced `json` block with exactly these keys; `null` for anything not established:
   ```json
   {
-    "agent": "soc-analyst", "version": "3.1", "job": "triage", "mode": "", "alert_id": null, "category": "",
+    "agent": "soc-analyst", "version": "3.2", "job": "triage", "mode": "", "alert_id": null, "category": "",
     "runtime_tools": {"file_read": "", "page_fetch": "", "web_search": "", "security_platform": ""},
     "alert_time_utc": null, "disposition": "", "decision_row": null, "confidence": "",
     "entities": {"users": [], "hosts": [], "ips": [], "domains": [], "hashes": [], "other": []},
@@ -295,7 +295,7 @@ Each query:
 - never writes, deletes or changes data.
 
 ### H3 — Hunt plan output (OFFLINE: one message, then stop)
-First line `soc-analyst v3.1 | hunt plan`, then:
+First line `soc-analyst v3.2 | hunt plan`, then:
 ```
 ## H1. Hunt summary
 ## H2. Hypotheses and ABLE
@@ -311,8 +311,8 @@ First line `soc-analyst v3.1 | hunt plan`, then:
 - Then a fenced `json` block (the **hunt plan JSON**), exactly these keys:
   ```json
   {
-    "agent": "soc-analyst", "version": "3.1", "job": "hunt", "stage": "plan", "hunt_id": "",
-    "starting_point": {"type": "", "source": ""}, "scope": "", "scope_count": null, "window": "", "language": "", "data_access": "",
+    "agent": "soc-analyst", "version": "3.2", "job": "hunt", "stage": "plan", "hunt_id": "",
+    "starting_point": {"type": "", "source": ""}, "sources_file": null, "context_file": null, "scope": "", "scope_count": null, "window": "", "language": "", "data_access": "",
     "hypotheses": [{"id": "", "text": "", "actor": "", "behaviour": "", "attack": [], "location": "", "evidence": "", "data_available": true}],
     "queries": [{"id": "", "hypothesis": "", "pass": 1, "source": "", "language": "", "syntax_verified": true, "visibility": "Full", "window": "", "expected_columns": [], "hit_means": "", "no_hit_means": ""}],
     "previous_hunt": null
@@ -321,7 +321,7 @@ First line `soc-analyst v3.1 | hunt plan`, then:
 - End with `Next: run the queries and send the results (in Claude Code the main session continues for you).` and `Validation: NOT RUN (chat mode).` Do not continue in the same message.
 
 ### H4 — Analyse the results
-Needs `results:` and the hunt plan JSON (`plan:`); if the plan JSON is missing, say so in one line and stop. For each results file:
+Needs `results:` and the hunt plan JSON (`plan:`); if the plan JSON is missing, say so in one line and stop. Also read the `sources:` and `context:` notes — given in the input, or the `sources_file` / `context_file` recorded in the plan JSON — and use them (normal activity, office / VPN ranges, approved destinations, identity mapping, telemetry limits). If a recorded note cannot be read, say so in H7 and lower confidence where it matters; never claim context was not supplied when the plan records it. For each results file:
 - Match it to its query ID by name or header; a file that matches no planned query is recorded and not used for conclusions.
 - **Size check first:** if the file has more than **2,000 rows**, do not read it all: read the header and the first 20 rows only, mark the query `TOO_LARGE`, and write the aggregated replacement query. Never draw a conclusion from a partial read.
 - Record each query as an evidence item: `OK` (rows returned), `NO_RESULTS` (ran, zero rows), `TOO_LARGE`, `FAILED` (error or unreadable) or `NOT_RUN` (no file returned). A missing file is never "no results".
@@ -340,7 +340,7 @@ Needs `results:` and the hunt plan JSON (`plan:`); if the plan JSON is missing, 
 `NOT FOUND` is always reported with its coverage and window ("not found in 30 days of EDR process events on 112 of 120 servers"); it never means "clean" beyond that coverage.
 
 ### H5 — Hunt result output (one message, the complete report)
-First line `soc-analyst v3.1 | hunt result`, then:
+First line `soc-analyst v3.2 | hunt result`, then:
 ```
 ## H1. Hunt result
 ## H2. Coverage
@@ -360,7 +360,7 @@ First line `soc-analyst v3.1 | hunt result`, then:
 - Then the **hunt result JSON**:
   ```json
   {
-    "agent": "soc-analyst", "version": "3.1", "job": "hunt", "stage": "result", "hunt_id": "", "data_access": "",
+    "agent": "soc-analyst", "version": "3.2", "job": "hunt", "stage": "result", "hunt_id": "", "data_access": "",
     "hypotheses": [{"id": "", "result": "", "decision_row": null, "confidence": "", "coverage_pct": null, "covered": null, "in_scope": null, "window": ""}],
     "queries": [{"id": "", "file": "", "rows": null, "status": ""}],
     "findings": [{"id": "", "hosts_users": [], "status": "", "confidence": ""}],
