@@ -140,6 +140,9 @@ The agent writes queries for **your** environment, so it needs to know what logs
 | Which logs are collected, with their **index / table names** | Elastic: *Discover* → index patterns. Sentinel: the *Tables* list in Logs. Splunk: indexes / sourcetypes. |
 | **Field names** for the key data (host, user, process, command line, IP, domain) | Open one event of each type and copy its field names, or export 5–10 sample events with sensitive values removed |
 | **Coverage**: how many machines send these logs | EDR console (hosts with the sensor) and CMDB / asset list (total machines) |
+| **Approved outbound destinations** (e.g. package registries, code hosting, update servers) | Network / proxy team, developer tooling owners |
+| **Identity mapping**: how a device account relates to a sign-in name (e.g. `j.doe` on a laptop = `j.doe@example.com`) | IAM team |
+| **Known telemetry limits** (e.g. file reads not recorded, no DNS logs) | Your EDR / SIEM documentation |
 
 Example `incidents/notes/sources.md`:
 
@@ -148,7 +151,10 @@ Platform: Microsoft Sentinel (KQL). Time zone: UTC.
 EDR process events: DeviceProcessEvents — DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName
 EDR network events: DeviceNetworkEvents — DeviceName, RemoteIP, RemoteUrl, RemotePort
 Sign-ins: SigninLogs — UserPrincipalName, IPAddress, Location, ResultType
-Coverage: 1,180 of 1,250 laptops have Defender for Endpoint; servers 300 of 310.
+Coverage: 1,180 of 1,250 laptops have Defender for Endpoint; servers 300 of 310. Developer laptops (lap-04xx): 142 of 150 onboarded.
+Approved destinations for node/npm: registry.npmjs.org, github.com, githubusercontent.com, nodejs.org.
+Identity mapping: device AccountName j.doe = UPN j.doe@example.com.
+Limits: DeviceFileEvents records created/modified/renamed/deleted files, not reads; no DNS or proxy logs.
 ```
 
 A complete synthetic example (Elastic) is in [`tests/soc-analyst/fixtures/hunt-01/sources.md`](../../tests/soc-analyst/fixtures/hunt-01/sources.md).
@@ -208,7 +214,7 @@ Or start from another agent's output, e.g. `mode: hunt intel: incidents/case-12/
 
 You get a **hunt plan** (`soc-analyst vX.Y | hunt plan`): up to 3 hypotheses, each with an **ABLE** table (Actor, Behaviour, Location, Evidence), a data check, and **ready-to-run queries**. Each query comes with *what a hit means*, *what no hit means* and the file name to export to (`Q1.csv`, …). Claude saves the plan as `hunt-plan.md` in the hunt folder.
 
-**2. Run the queries in your SIEM.** Export each result as `Q1.csv`, `Q2.csv`, … into the same folder (e.g. `incidents/hunt-01/`). Note **how many of the in-scope hosts or users each query covered** (e.g. "112 of 120 hosts; 8 have no EDR").
+**2. Run the queries in your SIEM.** Export each result as `Q1.csv`, `Q2.csv`, … into the hunt folder Claude names, `incidents/hunts/<hunt ID>/` (it also holds `hunt-plan.md`; keep your reusable notes separately in `incidents/notes/`). Note **how many of the in-scope hosts or users each query covered** (e.g. "112 of 120 hosts; 8 have no EDR").
 
 **3. Send the results** (Claude Code chat):
 
