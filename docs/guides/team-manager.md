@@ -22,12 +22,12 @@ For a single, clear job (one alert, one CVE), go straight to that agent.
 |---|---|
 | [vm-triage](vm-triage.md) | Public facts about one CVE |
 | [vulnerability-hunt](vulnerability-hunt.md) | Whether a CVE affects **your** assets (needs vm-triage's JSON + an inventory) |
-| [soc-analyst](soc-analyst.md) | One alert, or a small group of related alerts |
+| [soc-analyst](soc-analyst.md) | One alert, or a small group of related alerts; with `mode: hunt`, hunting in your own logs ("were we breached?", "are other hosts affected?") |
 | [cloud-security-analyst](cloud-security-analyst.md) | Cloud alerts, or cloud posture from IaC and IAM exports |
 | [threat-modeler](threat-modeler.md) | Threat model of one system's design |
 | [threat-intel-analyst](threat-intel-analyst.md) | A threat actor, campaign or set of indicators |
 
-Some work always goes to **people**, never to an agent: threat hunting and incident response, writing or deploying detection rules, pipeline and infrastructure changes, risk acceptance, and containment such as isolating a host or resetting passwords. These appear in the plan as `REQUIRES APPROVAL — <role>: <action>`.
+Some work always goes to **people**, never to an agent: incident response, writing or deploying detection rules, pipeline and infrastructure changes, risk acceptance, and containment such as isolating a host or resetting passwords. These appear in the plan as `REQUIRES APPROVAL — <role>: <action>`.
 
 ## Plan → run → combine (Claude Code)
 

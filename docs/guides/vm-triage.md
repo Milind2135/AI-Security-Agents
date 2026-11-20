@@ -38,7 +38,7 @@ Save only the JSON block from the vm-triage report above to incidents/<case>/vm-
 ## What it will not do
 
 - Say whether **your** systems are affected or how urgent it is for you → [vulnerability-hunt](vulnerability-hunt.md)
-- Check whether you have been breached → your threat-hunting / incident-response team
+- Check whether you have been breached → [soc-analyst hunt mode](soc-analyst.md#hunt-mode)
 - Scan, patch or touch any system
 
 ## In GitHub Copilot

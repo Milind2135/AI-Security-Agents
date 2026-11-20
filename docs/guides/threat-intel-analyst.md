@@ -38,6 +38,8 @@ Use the threat-intel-analyst subagent. subject: 203.0.113.45, malicious-update[.
 - **Published detection rules** and **hunting ideas**: for your detection and hunting teams
 - **Sources**: graded for reliability (A–F) and credibility (1–6)
 
+**Hunt for it in your own logs:** save the brief's JSON block (e.g. `incidents/<case>/threat-intel.json`) and give it to [soc-analyst hunt mode](soc-analyst.md#hunt-mode) as `intel:`.
+
 **3. (Optional) Save it:**
 
 ```text
