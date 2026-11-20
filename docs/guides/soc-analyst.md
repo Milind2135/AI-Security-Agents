@@ -86,7 +86,7 @@ Triage answers "is this alert real?". **Hunt mode** answers "is anything bad hid
 >
 > One prompt is enough only with a **LIVE** SIEM / EDR connection (the agent runs the queries itself), or when **repeating** a hunt with results you already have (`mode: hunt plan: <saved plan> results: Q1.csv …`).
 
-The agent **writes the queries; you run them** in your SIEM and give back the results. It never needs all your logs: every query **counts and groups** in the SIEM (rarest first) and returns at most **200 rows**.
+The agent **writes the queries; you run them**: in your SIEM or EDR, in a data lake for older logs, or (with the endpoint team's approval) with osquery / Velociraptor on live machines. Then you give back the results. It never needs all your logs: every query **counts and groups** in the SIEM (rarest first) and returns at most **200 rows**.
 
 ### What you need
 
@@ -308,5 +308,6 @@ Pick **soc-analyst** in the agent dropdown and send the Step 2 input (without "U
 | `depth: thorough` | More queries and lookups |
 | `?` | Print the usage card |
 | `mode: hunt` + `hypothesis:` / `intel:` / `vuln:` / `escalation:` / `baseline:` | Hunt mode starting point |
-| `siem:`, `sources:`, `scope:`, `window:` | Hunt query language, data sources, scope (with a count), time range |
+| `siem:` | Hunt query language: `kql`, `esql`, `spl`, `sigma` (main); `crowdstrike`, `sentinelone`, `cortex`, `chronicle`, `qradar`, `sumo`, `wazuh`, `carbonblack`, `datadog`, `sql: <engine>`, `osquery`, `vql`, `yara` (extended) |
+| `sources:`, `context:`, `scope:`, `window:` | Your data sources note, context note, scope (with a count), time range |
 | `results:` + `plan:` | Hunt analysis (Claude passes these for you in Claude Code) |
