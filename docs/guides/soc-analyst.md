@@ -102,15 +102,79 @@ The agent **writes the queries; you run them** in your SIEM and give back the re
 
 For Extended platforms, always test the query in your console before relying on a "no results". The Sigma version can be converted with the official [sigma-cli](https://github.com/SigmaHQ/sigma-cli) and your platform's backend.
 
-Example `sources.md`: see [`tests/soc-analyst/fixtures/hunt-01/sources.md`](../../tests/soc-analyst/fixtures/hunt-01/sources.md).
+### Before your first hunt: write two short notes (one-time)
+
+The agent writes queries for **your** environment, so it needs to know what logs you have and what is normal for you. Write these two notes once, keep them in `incidents/` (git-ignored), and reuse them for every hunt. Only the hypothesis changes each time.
+
+**1. Data sources note (`sources:`): what logs you have**
+
+| Put in it | Where to find it |
+|---|---|
+| Your SIEM / EDR platform and query language | You know it (e.g. Elastic, Sentinel, Splunk, CrowdStrike) |
+| Which logs are collected, with their **index / table names** | Elastic: *Discover* → index patterns. Sentinel: the *Tables* list in Logs. Splunk: indexes / sourcetypes. |
+| **Field names** for the key data (host, user, process, command line, IP, domain) | Open one event of each type and copy its field names, or export 5–10 sample events with sensitive values removed |
+| **Coverage**: how many machines send these logs | EDR console (hosts with the sensor) and CMDB / asset list (total machines) |
+
+Example `incidents/notes/sources.md`:
+
+```markdown
+Platform: Microsoft Sentinel (KQL). Time zone: UTC.
+EDR process events: DeviceProcessEvents — DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName
+EDR network events: DeviceNetworkEvents — DeviceName, RemoteIP, RemoteUrl, RemotePort
+Sign-ins: SigninLogs — UserPrincipalName, IPAddress, Location, ResultType
+Coverage: 1,180 of 1,250 laptops have Defender for Endpoint; servers 300 of 310.
+```
+
+A complete synthetic example (Elastic) is in [`tests/soc-analyst/fixtures/hunt-01/sources.md`](../../tests/soc-analyst/fixtures/hunt-01/sources.md).
+
+**2. Context note (`context:`): what is normal for you**
+
+| Put in it | Usually from |
+|---|---|
+| VPN and office IP ranges | Network team |
+| Admin and IT tools normally used (e.g. remote-admin tools, software deployment) | IT / desktop team |
+| Service accounts and what they do | IAM / platform team |
+| Change windows, pentests, known noisy sources | Change calendar, SOC wiki |
+| Critical assets (domain controllers, payment servers) | CMDB / asset owners |
+
+Example `incidents/notes/context.md`:
+
+```markdown
+VPN range: 198.51.100.0/24. Office: 192.0.2.0/24. Time zone: Europe/London.
+IT uses remote-admin tool X and software-deployment tool Y on all laptops.
+Service accounts: svc-backup (nightly backups 01:00–03:00), ci-bot (CI/CD only).
+Change window: Tuesdays 22:00–23:00. Pentest scheduled 2026-12-01 to 2026-12-05.
+Critical assets: domain controllers dc-01, dc-02; payroll server pay-01.
+```
+
+A synthetic example is in [`tests/soc-analyst/fixtures/hunt-01/context.md`](../../tests/soc-analyst/fixtures/hunt-01/context.md).
+
+**No notes yet?** The agent still works: it uses generic field names marked `ADJUST FIELD NAMES`, and you fix them before running the queries. Writing the notes once saves that work every time.
+
+> **Data rule:** use real environment details only with an AI service your organisation has approved; keep the notes in `incidents/` (never in the public repository); never put passwords, keys or customer data in them.
+
+### What each part of the hunt prompt means
+
+| Part | Meaning | Why it matters |
+|---|---|---|
+| `mode: hunt` | Hunt instead of triaging an alert | Switches the job |
+| `hypothesis: …` | What you suspect, in plain words | Each hunt tests a suspicion |
+| `siem: esql` | Your platform or query language | A Splunk search won't run in Elastic |
+| `sources: <file>` | Your data sources note | Real index and field names; what you can't see (e.g. hosts without EDR) |
+| `context: <file>` | Your context note | Normal activity isn't flagged as suspicious |
+| `scope: developer and build hosts (120)` | Where to look, **with a count** | The count lets the agent state coverage (e.g. "112 of 120 = 93%") |
+| `window: last 30 days` | How far back to search | Limits the queries |
+
 
 ### Steps (Claude Code chat)
 
 **1. Ask for a hunt plan**
 
 ```text
-Use the soc-analyst subagent. mode: hunt hypothesis: a malicious npm package is stealing developer credentials siem: esql sources: incidents/hunt-01/sources.md context: incidents/hunt-01/context.md scope: developer and build hosts (120) window: last 30 days
+Use the soc-analyst subagent. mode: hunt hypothesis: a malicious npm package is stealing developer credentials siem: esql sources: incidents/notes/sources.md context: incidents/notes/context.md scope: developer and build hosts (120) window: last 30 days
 ```
+
+To try it with the synthetic test data instead, use `sources: tests/soc-analyst/fixtures/hunt-01/sources.md context: tests/soc-analyst/fixtures/hunt-01/context.md`.
 
 Or start from another agent's output, e.g. `mode: hunt intel: incidents/case-12/threat-intel.json siem: kql`.
 
