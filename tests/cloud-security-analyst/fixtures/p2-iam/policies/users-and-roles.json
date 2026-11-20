@@ -1,0 +1,23 @@
+{"_note": "SYNTHETIC TEST DATA - simplified IAM export",
+ "users": [
+  {"name": "build-bot", "access_keys": [{"id": "AKIA-EXAMPLE-NOT-A-REAL-KEY-1", "status": "Active", "created": "2024-02-01"}],
+   "policies": [{"name": "build-bot-inline", "document": {"Statement": [
+      {"Effect": "Allow", "Action": ["lambda:CreateFunction", "lambda:InvokeFunction"], "Resource": "*"},
+      {"Effect": "Allow", "Action": "iam:PassRole", "Resource": "*"}]}}]},
+  {"name": "analyst-ro",
+   "policies": [{"name": "ReadOnlyAccess (managed)"}, {"name": "analyst-extra", "document": {"Statement": [
+      {"Effect": "Allow", "Action": "iam:CreateAccessKey", "Resource": "*"}]}}]}
+ ],
+ "roles": [
+  {"name": "ops-admin", "trust": {"Statement": [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]},
+   "policies": [{"name": "AdministratorAccess (managed)"}]},
+  {"name": "partner-read", "trust": {"Statement": [{"Effect": "Allow", "Principal": {"AWS": "*"}, "Action": "sts:AssumeRole"}]},
+   "policies": [{"name": "partner-read-inline", "document": {"Statement": [{"Effect": "Allow", "Action": "s3:*", "Resource": ["arn:aws:s3:::example-data-lake", "arn:aws:s3:::example-data-lake/*"]}]}}]},
+  {"name": "dev-role", "account": "777788889999 (non-production)", "policies": [{"name": "dev-inline", "document": {"Statement": [{"Effect": "Allow", "Action": "sts:AssumeRole", "Resource": "arn:aws:iam::444455556666:role/staging-hop"}]}}]},
+  {"name": "staging-hop", "trust": {"Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:iam::777788889999:role/dev-role"}, "Action": "sts:AssumeRole"}]},
+   "policies": [{"name": "hop-inline", "document": {"Statement": [{"Effect": "Allow", "Action": "sts:AssumeRole", "Resource": "arn:aws:iam::444455556666:role/prod-deploy"}]}}]},
+  {"name": "prod-deploy", "trust": {"Statement": [{"Effect": "Allow", "Principal": {"AWS": "arn:aws:iam::444455556666:role/staging-hop"}, "Action": "sts:AssumeRole"}]},
+   "policies": [{"name": "AdministratorAccess (managed)"}]}
+ ],
+ "buckets": [{"name": "example-data-lake", "tags": {"data-class": "confidential-pii"}}]
+}

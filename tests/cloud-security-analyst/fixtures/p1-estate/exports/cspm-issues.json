@@ -1,0 +1,6 @@
+{"_note": "SYNTHETIC TEST DATA - CSPM-style export, field names approximate",
+ "issues": [
+  {"id": "ISS-1182", "title": "Publicly readable storage bucket", "severity": "HIGH", "resource": {"type": "Bucket", "name": "example-marketing-assets"}, "status": "OPEN"},
+  {"id": "ISS-1190", "title": "VM with critical vulnerability exposed to the internet", "severity": "CRITICAL", "resource": {"type": "VirtualMachine", "name": "web-01"},
+   "details": {"package": "log4j-core", "version": "2.14.1", "cve": "CVE-2021-44228"}, "status": "OPEN"}
+ ]}

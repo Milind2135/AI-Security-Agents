@@ -1,0 +1,128 @@
+{
+ "agent": "soc-analyst",
+ "version": "3.0",
+ "job": "hunt",
+ "stage": "plan",
+ "hunt_id": "HUNT-20261120-npm-worm",
+ "starting_point": {
+  "type": "hypothesis",
+  "source": "prompt"
+ },
+ "scope": "developer and build hosts",
+ "scope_count": 120,
+ "window": "last 30 days",
+ "language": "esql",
+ "data_access": "OFFLINE",
+ "hypotheses": [
+  {
+   "id": "HY-1",
+   "text": "A malicious npm package runs a postinstall script that uses node to send credential files to an external IP",
+   "actor": "unknown",
+   "behaviour": "npm postinstall exfiltration",
+   "attack": [
+    "T1195.002",
+    "T1041"
+   ],
+   "location": "developer and build hosts",
+   "evidence": "EDR process events: node or npm spawning curl/wget with an external destination",
+   "data_available": true
+  },
+  {
+   "id": "HY-2",
+   "text": "Infected hosts contact the campaign domain pkg-update.example",
+   "actor": "unknown",
+   "behaviour": "command and control",
+   "attack": [
+    "T1071.001"
+   ],
+   "location": "developer and build hosts",
+   "evidence": "EDR network events to pkg-update.example",
+   "data_available": true
+  },
+  {
+   "id": "HY-3",
+   "text": "Stolen developer tokens are used to create new public repositories in the GitHub org",
+   "actor": "unknown",
+   "behaviour": "exfiltration via repository creation",
+   "attack": [
+    "T1567"
+   ],
+   "location": "GitHub org example-org",
+   "evidence": "GitHub audit log repo.create by developer accounts; node child processes on hosts",
+   "data_available": true
+  }
+ ],
+ "queries": [
+  {
+   "id": "Q1",
+   "hypothesis": "HY-1",
+   "pass": 1,
+   "source": "logs-endpoint.events.process-*",
+   "language": "esql",
+   "window": "last 30 days",
+   "expected_columns": [
+    "process.parent.name",
+    "process.name",
+    "sample_command_line",
+    "event_count",
+    "host_count",
+    "hosts_sample",
+    "first_seen",
+    "last_seen"
+   ],
+   "hit_means": "rare node/npm -> curl/wget pairs on few hosts",
+   "no_hit_means": "no such pair on covered hosts"
+  },
+  {
+   "id": "Q2",
+   "hypothesis": "HY-2",
+   "pass": 1,
+   "source": "logs-endpoint.events.network-*",
+   "language": "esql",
+   "window": "last 30 days",
+   "expected_columns": [
+    "destination.domain",
+    "destination.ip",
+    "host_count",
+    "hosts_sample",
+    "first_seen",
+    "last_seen"
+   ],
+   "hit_means": "hosts contacted the campaign domain",
+   "no_hit_means": "no contact from covered hosts"
+  },
+  {
+   "id": "Q3",
+   "hypothesis": "HY-3",
+   "pass": 1,
+   "source": "logs-github.audit-*",
+   "language": "esql",
+   "window": "last 30 days",
+   "expected_columns": [
+    "github.actor",
+    "github.repo",
+    "event_count",
+    "first_seen",
+    "last_seen"
+   ],
+   "hit_means": "developer accounts created repos",
+   "no_hit_means": "no repo creation by developer accounts"
+  },
+  {
+   "id": "Q4",
+   "hypothesis": "HY-3",
+   "pass": 1,
+   "source": "logs-endpoint.events.process-*",
+   "language": "esql",
+   "window": "last 30 days",
+   "expected_columns": [
+    "host.name",
+    "process.name",
+    "count"
+   ],
+   "hit_means": "hosts running git push to new remotes from node",
+   "no_hit_means": "none"
+  }
+ ],
+ "previous_hunt": null
+}

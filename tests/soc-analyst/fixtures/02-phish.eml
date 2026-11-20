@@ -1,0 +1,18 @@
+X-Synthetic-Test: SYNTHETIC TEST DATA
+Return-Path: <bounce@mailer.it-helpdesk.example>
+Received: from mailer.it-helpdesk.example (unknown [198.51.100.77]) by mx1.example.com with ESMTPS; Tue, 3 Nov 2026 08:41:02 +0000
+Authentication-Results: mx1.example.com; spf=fail smtp.mailfrom=mailer.it-helpdesk.example; dkim=none; dmarc=fail header.from=example.com
+From: "IT Helpdesk" <helpdesk@example.com>
+Reply-To: <support@it-helpdesk.example>
+To: bob@example.com
+Subject: URGENT: Your password expires in 2 hours
+Date: Tue, 3 Nov 2026 08:40:55 +0000
+Message-ID: <a1b2c3@mailer.it-helpdesk.example>
+Content-Type: text/plain
+
+Dear user,
+
+Your mailbox password expires in 2 hours. To avoid losing access, verify your account now:
+https://login.it-helpdesk.example/verify?user=bob%40example.com&token=8f3a9c
+
+IT Helpdesk

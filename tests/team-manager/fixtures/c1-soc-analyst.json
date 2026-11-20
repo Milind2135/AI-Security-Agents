@@ -1,0 +1,62 @@
+{
+ "_note": "SYNTHETIC test fixture, abbreviated soc-analyst JSON. Not a real alert.",
+ "agent": "soc-analyst",
+ "version": "2.2",
+ "mode": "OFFLINE",
+ "alert_id": "EX-ALERT-0042",
+ "category": "endpoint",
+ "alert_time_utc": "2026-11-15T09:12:40Z",
+ "disposition": "CONFIRMED INCIDENT — ESCALATE NOW",
+ "decision_row": 1,
+ "confidence": "High",
+ "entities": {
+  "users": [
+   "u***@example.com"
+  ],
+  "hosts": [
+   "ws-118.example.com"
+  ],
+  "ips": [
+   "203.0.113[.]45"
+  ],
+  "domains": [
+   "pkg-update[.]example"
+  ],
+  "hashes": [],
+  "other": [
+   "npm package example-colors 4.2.1"
+  ]
+ },
+ "findings": [
+  {
+   "id": "F-01",
+   "status": "Confirmed",
+   "confidence": "High",
+   "text": "npm postinstall script ran on ws-118 and read ~/.npmrc"
+  },
+  {
+   "id": "F-02",
+   "status": "Confirmed",
+   "confidence": "High",
+   "text": "Outbound HTTPS to 203.0.113[.]45 at 2026-11-15T09:12:51Z, 112 KB sent"
+  }
+ ],
+ "attack": [
+  {
+   "technique": "T1195.002",
+   "basis": "source-stated"
+  },
+  {
+   "technique": "T1041",
+   "basis": "analyst-inferred"
+  }
+ ],
+ "requires_approval": [
+  "REQUIRES APPROVAL — IR lead: isolate ws-118.example.com",
+  "REQUIRES APPROVAL — identity team: rotate npm tokens for u***@example.com"
+ ],
+ "handoffs": [
+  "threat-intel-analyst: campaign behind example-colors 4.2.1",
+  "threat-hunting/IR team: other hosts that installed 4.2.1"
+ ]
+}

