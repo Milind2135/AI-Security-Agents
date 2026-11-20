@@ -102,6 +102,32 @@ The agent **writes the queries; you run them** in your SIEM and give back the re
 
 For Extended platforms, always test the query in your console before relying on a "no results". The Sigma version can be converted with the official [sigma-cli](https://github.com/SigmaHQ/sigma-cli) and your platform's backend.
 
+### Do I need an API integration with my SIEM or EDR?
+
+**No. An integration is optional.** The agent works fully without one; an integration only saves you copy-and-paste work.
+
+| | **Without integration (OFFLINE, default)** | **With integration (LIVE, optional)** |
+|---|---|---|
+| How it works | The agent writes the queries, **you** run them in your SIEM or EDR console and export the results (CSV/JSON) | The agent runs the queries **itself** through a connected tool and reads the results directly |
+| Setup | Nothing | A **read-only** API connection (an MCP server) to your SIEM or EDR, with read-only credentials |
+| Approvals | Only for using the AI service with your data | Also **security and IT approval** to connect the AI to the SIEM/EDR, plus an API account |
+| Effort per hunt | You run 3–6 queries and save the result files | One prompt |
+| Risk | Lowest: you see and control every query and result | Higher: the AI queries live data, so read-only access and limits are essential |
+
+**Adding LIVE later**
+1. Get an **MCP server** for your platform; many SIEM and EDR vendors and communities publish one (check your vendor's documentation).
+2. Create **read-only API credentials**: a dedicated account that can only search, never isolate, block or change anything.
+3. Add the tool:
+   - **Claude Code:** add it to the `tools:` line in `.claude/agents/soc-analyst.md`.
+   - **Copilot:** add it to the agent's `tools:` and to `.vscode/mcp.json`, with the API key entered at runtime via `${input:…}`; never save keys in the repository.
+4. The agent's own safety checks still apply:
+   - it refuses any tool that can change, delete, isolate or block, and falls back to OFFLINE;
+   - every query is time-bounded and limited to 200 rows;
+   - at most 10 queries per hunt (20 with `depth: thorough`);
+   - Claude Code and Copilot ask your permission before each tool call.
+
+**Recommendation:** start **OFFLINE**. You need no integration, and you see every query before it runs, which is also the best way to learn what the agent does. Consider LIVE only after a few hunts, with your security team's approval. The agent's first line always shows which one it is using (`data access: OFFLINE` or `LIVE`).
+
 ### Before your first hunt: write two short notes (one-time)
 
 The agent writes queries for **your** environment, so it needs to know what logs you have and what is normal for you. Write these two notes once, keep them in `incidents/` (git-ignored), and reuse them for every hunt. Only the hypothesis changes each time.
