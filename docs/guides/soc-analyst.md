@@ -105,6 +105,12 @@ The agent **writes the queries; you run them** in your SIEM and give back the re
 |---|---|
 | **Main**: queries written directly | Microsoft Sentinel / Defender (`kql`), Elastic (`esql`), Splunk (`spl`), vendor-neutral Sigma (`sigma`) |
 | **Extended**: query marked `SYNTAX UNVERIFIED — test in your console first`, plus a Sigma version to cross-check | CrowdStrike Falcon (`crowdstrike` / `cql`), SentinelOne (`sentinelone`), Palo Alto Cortex XDR (`cortex` / `xql`), Google SecOps / Chronicle (`chronicle` / `udm`), IBM QRadar (`qradar` / `aql`), Sumo Logic (`sumo`), Wazuh (`wazuh`), Carbon Black (`carbonblack`), Datadog (`datadog`) |
+| **Data lakes** (Extended): SQL; often holds **older logs** beyond your SIEM retention | AWS Security Lake + Athena, Snowflake, Databricks, BigQuery (`sql: athena`, `sql: snowflake`, …) |
+| **Endpoint state and files** (Extended): read-only, run on live machines **only with approval** of the endpoint / IR team; shows what is there **now**, not history | osquery (`osquery`), Velociraptor (`vql`), YARA file scans (`yara`) |
+
+**Other data worth hunting in** (list them in your sources note; most are searched through your SIEM): identity (Entra ID / AD, Okta), Windows / Linux OS logs (Security events, Sysmon, auditd), email security, firewall / proxy / DNS, NDR (e.g. Zeek), cloud audit logs, SaaS audit logs (GitHub, Google Workspace, M365), VPN / PAM, DLP / CASB / WAF, Kubernetes audit.
+
+**Hunting an old campaign?** If the hunt window is older than your SIEM retention, the agent says so and suggests a data-lake (`sql`) query for archived logs, or an `osquery` query to check what is still installed today.
 
 For Extended platforms, always test the query in your console before relying on a "no results". The Sigma version can be converted with the official [sigma-cli](https://github.com/SigmaHQ/sigma-cli) and your platform's backend.
 
