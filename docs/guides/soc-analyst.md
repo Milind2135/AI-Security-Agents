@@ -175,6 +175,8 @@ Critical assets: domain controllers dc-01, dc-02; payroll server pay-01.
 
 A synthetic example is in [`tests/soc-analyst/fixtures/hunt-01/context.md`](../../tests/soc-analyst/fixtures/hunt-01/context.md).
 
+**Save the notes inside your project folder** (e.g. `incidents/notes/`), not just in Downloads: the agent can only read files in the project. If the files are missing, Claude stops and asks rather than guessing.
+
 **No notes yet?** The agent still works: it uses generic field names marked `ADJUST FIELD NAMES`, and you fix them before running the queries. Writing the notes once saves that work every time.
 
 > **Data rule:** use real environment details only with an AI service your organisation has approved; keep the notes in `incidents/` (never in the public repository); never put passwords, keys or customer data in them.
