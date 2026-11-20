@@ -80,6 +80,12 @@ Other agents can use it: e.g. [team-manager](team-manager.md) combines it with o
 
 Triage answers "is this alert real?". **Hunt mode** answers "is anything bad hiding that **no alert** caught?", e.g. "were we breached by this CVE?", "are other hosts affected?", "is this campaign in our network?".
 
+> **A hunt takes two prompts.**
+> 1. **Ask for a hunt** → you get a **hunt plan** with ready-to-run queries, and the agent stops.
+> 2. **Run the queries in your SIEM**, save the results in the hunt folder, and reply **`results ready`** (with coverage notes) → you get the **hunt result**.
+>
+> One prompt is enough only with a **LIVE** SIEM / EDR connection (the agent runs the queries itself), or when **repeating** a hunt with results you already have (`mode: hunt plan: <saved plan> results: Q1.csv …`).
+
 The agent **writes the queries; you run them** in your SIEM and give back the results. It never needs all your logs: every query **counts and groups** in the SIEM (rarest first) and returns at most **200 rows**.
 
 ### What you need
