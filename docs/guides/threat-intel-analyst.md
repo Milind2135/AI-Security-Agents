@@ -38,7 +38,13 @@ Use the threat-intel-analyst subagent. subject: 203.0.113.45, malicious-update[.
 - **Published detection rules** and **hunting ideas**: for your detection and hunting teams
 - **Sources**: graded for reliability (A–F) and credibility (1–6)
 
-**Hunt for it in your own logs:** save the brief's JSON block (e.g. `incidents/<case>/threat-intel.json`) and give it to [soc-analyst hunt mode](soc-analyst.md#hunt-mode) as `intel:`.
+**Hunt for it in your own logs** (hand-off to soc-analyst):
+1. Save the JSON block: `Save only the JSON block from the threat-intel-analyst report above to incidents/notes/intel-<subject>.json`
+2. Select **@soc-analyst** and give the file **plus your environment**:
+   ```text
+   mode: hunt intel: incidents/notes/intel-<subject>.json siem: kql sources: incidents/notes/sources.md context: incidents/notes/context.md scope: <what, with a count> window: last 30 days
+   ```
+   Without `siem:`, `sources:`, `context:` and `scope:` the hunt queries are generic. Full walkthrough: [soc-analyst guide, Hunting from another agent's report](soc-analyst.md#hunting-from-another-agents-report).
 
 **3. (Optional) Save it:**
 
