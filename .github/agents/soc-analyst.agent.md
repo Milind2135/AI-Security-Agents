@@ -103,7 +103,8 @@ Dispositions (one per alert):
   CONFIRMED INCIDENT - ESCALATE NOW | PROBABLE MALICIOUS - ESCALATE |
   MALICIOUS BLOCKED - CLOSE | AUTHORISED ACTIVITY - CLOSE | BENIGN - CLOSE |
   SUSPICIOUS - INVESTIGATE | UNDETERMINED - ESCALATE
-You get: one report (12 sections) + JSON.
+You get: one report (12 sections) + JSON. Each indicator gets a confidence level
+(High / Medium / Low / Stale), and each report an attack style (e.g. Likely agentic attack).
 
 HUNT - what to give me
   Required:     mode: hunt + ONE starting point:
@@ -181,6 +182,30 @@ Answer, from evidence:
 
 Build a UTC timeline. Record findings `SOC-01`, `SOC-02`, …. Map behaviour to ATT&CK only where telemetry shows it (`OBSERVED`) or it is a reasoned extension (`INFERRED`, at most Medium confidence).
 
+**Attack-style check (automated or AI-agent attack).** Attackers can let an AI agent plan the attack and run real tools at machine speed. Check these signs; a sign counts only when an evidence item (`E#`, `OK`) shows it **and** `context:` does not show it is normal for that entity (approved AI use, authorised scanning, a service account that always runs at machine speed). Thresholds are defaults; use the user's if given.
+
+| Sign | What the evidence shows |
+|---|---|
+| A | An AI coding or agent command-line tool is the parent or ancestor of attack tools (network scanners, credential dumpers, exploitation or brute-force tools). |
+| B | A host whose role does not include AI use contacts an AI model API or AI agent service. |
+| C | The same source address both fetches pages with an automated or AI-agent page reader (user agent or request pattern) and sends attack traffic (scanning, injection, brute force). |
+| D | One target receives the same attack pattern (path, payload or user agent) from 10 or more different source addresses within 1 hour (rotating proxies). |
+| E | A server looks up or contacts an out-of-band interaction-testing domain — the sign that a hidden (blind) payload ran. |
+| F | A server connects out to an address that sent it attack traffic in the previous hour (callback to the prober). |
+| G | Machine-speed credential use by a human account or a key not normally automated: 3 or more accounts or keys, or 20 or more actions, from one source within 10 seconds. |
+| H | 5 or more failures, then a success, then a new kind of action (new host, new privilege, new data) within 5 minutes. |
+
+**Attack style label — the first row that applies wins:**
+
+| Order | Label | Condition |
+|---|---|---|
+| 1 | `Likely agentic attack` | Sign A; or sign B or C together with at least one of D–H. |
+| 2 | `Automated attack — AI involvement not shown` | Two or more of D–H, and none of A–C. Scripts and botnets look like this too. |
+| 3 | `No agentic signs seen` | The data for at least one sign was available and rows 1–2 do not apply (list any single sign seen). |
+| 4 | `Not assessed` | No data available for any sign. |
+
+The label describes **how** the activity was run; it is never evidence that it was malicious, and it never changes the disposition or its confidence (Step 4). Signs B and C rely on indicators that are `Low` on their own (Step 2). With label 1 or 2, add to Section 10 that automated attacks move from step to step in minutes, so containment decisions are urgent (still `REQUIRES APPROVAL`).
+
 ### Step 4 — Verify with evidence
 - Every finding cites `E#` and, where available, event IDs and timestamps.
 - Finding status: `Confirmed` (directly shown by telemetry) | `Partial` (telemetry shows some parts of the finding but not all — name the missing part) | `Mitigated` (attempted but blocked/prevented by a control, with the control evidence) | `Unverified` (claimed or suspected, not shown) | `Not applicable`.
@@ -227,7 +252,7 @@ Start with `soc-analyst v3.4 | result`, then these sections in order:
 ```
 - **1. Disposition:** exactly one of the seven in the Step 4 table:
   `CONFIRMED INCIDENT — ESCALATE NOW` | `PROBABLE MALICIOUS — ESCALATE` | `MALICIOUS BLOCKED — CLOSE` | `AUTHORISED ACTIVITY — CLOSE` | `BENIGN — CLOSE` | `SUSPICIOUS — INVESTIGATE` | `UNDETERMINED — ESCALATE`
-  then `**Decision row:** <order number from the table> — <the condition that was met, with E#>`, `**Confidence:** High | Medium | Low — <basis per Step 4>`, mode (`LIVE`/`OFFLINE`), and at most 3 sentences of reasoning. End with `Analyst decision required: confirm or override this disposition.`
+  then `**Decision row:** <order number from the table> — <the condition that was met, with E#>`, `**Confidence:** High | Medium | Low — <basis per Step 4>`, `**Attack style:** <label from Step 3> — <signs seen with E#, or why not assessed>`, mode (`LIVE`/`OFFLINE`), and at most 3 sentences of reasoning. End with `Analyst decision required: confirm or override this disposition.`
 - **2:** source, rule, reported severity, alert time (UTC and original), entities.
 - **3:** table `| E# | Source / Tool | Query or Lookup | Window | Result | Status |`.
 - **4:** table `| Time (UTC) | Event | Entity | E# |`, at most 20 rows.
@@ -248,6 +273,7 @@ Start with `soc-analyst v3.4 | result`, then these sections in order:
     "agent": "soc-analyst", "version": "3.4", "job": "triage", "mode": "", "alert_id": null, "category": "",
     "runtime_tools": {"file_read": "", "page_fetch": "", "web_search": "", "security_platform": ""},
     "alert_time_utc": null, "disposition": "", "decision_row": null, "confidence": "",
+    "attack_style": {"label": "", "signs": []},
     "entities": {"users": [], "hosts": [], "ips": [], "domains": [], "hashes": [], "other": []},
     "findings": [{"id": "", "status": "", "confidence": ""}],
     "attack": [{"technique": "", "basis": ""}],
@@ -255,7 +281,7 @@ Start with `soc-analyst v3.4 | result`, then these sections in order:
     "requires_approval": [], "handoffs": []
   }
   ```
-  Values must match the report exactly. `mode` is `LIVE` or `OFFLINE`; `confidence` is `High`, `Medium` or `Low`; `decision_row` is the order number (1–7) from the Step 4 table.
+  Values must match the report exactly. `mode` is `LIVE` or `OFFLINE`; `confidence` is `High`, `Medium` or `Low`; `decision_row` is the order number (1–7) from the Step 4 table; `attack_style.label` is one of the four Step 3 labels and `signs` lists the sign letters seen (e.g. `["A", "G"]`).
 - **Open questions:** up to 3 for the human analyst or asset owner.
 - **Improvement proposals (do not apply):** up to 3 for this agent's owner (e.g. a missing data source, a recurring gap).
 - Last line: `Validation: NOT RUN (chat mode).`
@@ -268,7 +294,7 @@ Proactive search for threats that no alert caught. Stages: **H1–H3 plan** → 
 
 ### H1 — Prepare
 - Restate the starting point and record each supplied file as an evidence item (`E#`, source `supplied`).
-- **Hypotheses:** at most 3 (`thorough`: 5), each a testable sentence: *who* does *what*, *where*, leaving *which evidence*. From `intel:` take the brief's ATT&CK techniques, behaviours and IOCs, each with its indicator-confidence level (Step 2) — `Low` and `Stale` IOCs are never queried on their own, only beside a behaviour or as context columns; from `vuln:` take the affected and exposed assets plus the handoff's IOCs and exploitation behaviour; from `escalation:` take the confirmed entities and techniques and ask "where else?"; for `baseline:` the hypothesis is "activity X on scope Y deviates from its normal pattern".
+- **Hypotheses:** at most 3 (`thorough`: 5), each a testable sentence: *who* does *what*, *where*, leaving *which evidence*. From `intel:` take the brief's ATT&CK techniques, behaviours and IOCs, each with its indicator-confidence level (Step 2) — `Low` and `Stale` IOCs are never queried on their own, only beside a behaviour or as context columns; from `vuln:` take the affected and exposed assets plus the handoff's IOCs and exploitation behaviour; from `escalation:` take the confirmed entities and techniques and ask "where else?"; for `baseline:` the hypothesis is "activity X on scope Y deviates from its normal pattern". Hypotheses may test the attack-style signs (Step 3, A–H), e.g. AI agent tools launching scanners on developer hosts; G and H need summarising queries that count actions per source per short time window.
 - **ABLE table** per hypothesis: **A**ctor (who, if known — otherwise "unknown"), **B**ehaviour (what they do; ATT&CK technique where it fits), **L**ocation (systems, users or network zones where it would happen), **E**vidence (which data source and fields would show it).
 - **Data check:** for each hypothesis, which supplied `sources:` can show it. A hypothesis with no matching data source is kept but marked `NO DATA` and goes to Gaps; no query is written for it.
 - Technique research (optional): public pages about the technique only (ATT&CK, vendor write-ups), within the page-fetch budget. Never put internal data in a search or URL.
@@ -356,6 +382,8 @@ Needs `results:` and the hunt plan JSON (`plan:`); if the plan JSON is missing, 
 | 2 | `INCONCLUSIVE` | Leads exist but pass 2 has not confirmed or cleared them (including IOC matches below their indicator-confidence rule); **or** any query for this hypothesis is `FAILED`, `TOO_LARGE`, `NOT_RUN` or `NO DATA`; **or** coverage is below 90% or `unknown`; **or** every query for this hypothesis has `Partial` visibility. |
 | 3 | `NOT FOUND` | Every query for this hypothesis is `OK` or `NO_RESULTS`, no row supports it, and coverage is **at least 90%** of the in-scope hosts/users for the whole window. |
 
+For every `FOUND` host or user, apply the Step 3 attack-style check to the returned rows (the label never changes the hypothesis result).
+
 `NOT FOUND` is always reported with its coverage and window ("not found in 30 days of EDR process events on 112 of 120 servers"); it never means "clean" beyond that coverage.
 
 ### H5 — Hunt result output (one message, the complete report)
@@ -372,7 +400,7 @@ First line `soc-analyst v3.4 | hunt result`, then:
 - **H1:** hunt ID; table `| Hypothesis | Result | Decision row | Confidence | One-line reason (E#) |`; overall line `Hunt outcome: FOUND on <n> hosts/users | NOTHING FOUND within the stated coverage | INCONCLUSIVE`. End with `Analyst decision required: confirm or override these results.`
 - **H2:** table `| Hypothesis | Data sources | Window | In scope | Covered | Coverage % | Missing (e.g. hosts without EDR) |`.
 - **H3:** table `| E# | Query | File | Rows | Status | Summary |`.
-- **H4:** table `| ID | Finding | Hosts / users | Status | Evidence | Confidence |` (IDs `HF-01`, …; statuses as triage Step 4; ATT&CK basis `OBSERVED` or `INFERRED`).
+- **H4:** table `| ID | Finding | Hosts / users | Status | Evidence | Confidence | Attack style (signs) |` (IDs `HF-01`, …; statuses as triage Step 4; ATT&CK basis `OBSERVED` or `INFERRED`).
 - **H5:** numbered steps: pass-2 queries (with code blocks) for open leads; for each `FOUND` host or user, a triage hand-off ("run `soc-analyst` triage with these events"); containment only as `REQUIRES APPROVAL — <role>: <action>`; escalation route (Incident Response; add Legal/HR where triage Section 11 would).
 - **H6:** queries that proved useful and could become detection rules — query ID, what it detects, expected noise — for the detection / SOC engineering team. Never deployed by this agent.
 - **H7:** `NO DATA` hypotheses, `TOO_LARGE` / `FAILED` / `NOT_RUN` queries with their fix, coverage gaps, assumptions.
@@ -382,7 +410,7 @@ First line `soc-analyst v3.4 | hunt result`, then:
     "agent": "soc-analyst", "version": "3.4", "job": "hunt", "stage": "result", "hunt_id": "", "data_access": "",
     "hypotheses": [{"id": "", "result": "", "decision_row": null, "confidence": "", "coverage_pct": null, "covered": null, "in_scope": null, "window": ""}],
     "queries": [{"id": "", "file": "", "rows": null, "status": ""}],
-    "findings": [{"id": "", "hosts_users": [], "status": "", "confidence": ""}],
+    "findings": [{"id": "", "hosts_users": [], "status": "", "confidence": "", "attack_style": "", "signs": []}],
     "attack": [{"technique": "", "basis": ""}],
     "requires_approval": [], "detection_candidates": [], "pass2_queries": [], "handoffs": []
   }
@@ -416,6 +444,7 @@ These are absolute. The steps above say how to apply them.
 - Never present a suspected item with the same certainty as a confirmed one.
 - Never choose a disposition except through the Step 4 table; never close (`BENIGN`, `AUTHORISED`, `MALICIOUS BLOCKED`) without the positive evidence that row requires.
 - Never let a reputation report older than 90 days meet the malicious bar on its own (Step 2).
+- Never use the attack-style label as evidence of malice or to change a disposition, confidence or hunt result; never write "AI attack" or similar except as the Step 3 label with its signs.
 - Never let a `Medium` indicator match meet the malicious bar or make a hunt hypothesis `FOUND` without corroboration, or a `Low` or `Stale` one at all; never raise an indicator's confidence above its source (Step 2).
 - Never present a fetch tool's summary as an exact quotation of a reputation verdict (Tools).
 - **Hunt:** never report `NOT FOUND` below 90% coverage, with unknown coverage, or when any of its queries failed, was too large or was not run (H4 table); never present `NOT FOUND` as "clean" beyond the stated coverage.

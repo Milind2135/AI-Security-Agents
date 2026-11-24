@@ -89,6 +89,34 @@ Alerts and threat-intel lists contain "bad" IP addresses, domains and file hashe
 
 The agent can lower a level, never raise it. You see the level and the reason in the **Indicators** section of the report (triage) or beside each IOC in the hunt plan. Tip: list your approved destinations (e.g. the AI services your company uses) in the `context:` note so they are recognised as normal.
 
+## Does it say "likely agentic attack"?
+
+Yes, when it sees the signs. Attackers now use **AI agents** that plan an attack and run real hacking tools very fast. Every report has an **Attack style** line next to the disposition, based on these signs:
+
+| Sign | In simple words |
+|---|---|
+| A | An AI coding tool on a computer starts hacking tools (e.g. a network scanner) |
+| B | A server with no reason to use AI suddenly talks to an AI service |
+| C | The same address both reads your website like a robot and attacks it |
+| D | One website is attacked from 10+ different addresses that keep changing |
+| E | A server contacts a special "test" website attackers use to check that a hidden attack worked |
+| F | A server connects back to the address that just attacked it |
+| G | Passwords or keys used faster than a human could (e.g. 3 accounts in 1 second) |
+| H | Many failures, then a sudden success and a quick move to something new |
+
+| Attack style | When |
+|---|---|
+| **Likely agentic attack** | Sign A, or sign B or C plus one of D–H |
+| **Automated attack — AI involvement not shown** | Two or more of D–H, but no A–C (ordinary scripts and botnets look like this too) |
+| **No agentic signs seen** | Data was checked; not enough signs |
+| **Not assessed** | No data to check any sign |
+
+Important:
+- The attack style says **how** the attack was run, not **whether** it is malicious. The disposition (e.g. `PROBABLE MALICIOUS — ESCALATE`) is still decided by the evidence alone.
+- A sign does not count if your `context:` note shows it is normal, e.g. approved AI services, an authorised scan, or a service account that always runs fast. List these in your note.
+- With an agentic or automated attack style, the report reminds you that the attacker can move within minutes, so containment decisions are urgent. You still approve every action.
+- The thresholds (10 addresses, 3 accounts in 10 seconds, etc.) are starting defaults. Give your own in the prompt or `context:` note if they don't fit your environment.
+
 ## Hunt mode
 
 Triage answers "is this alert real?". **Hunt mode** answers "is anything bad hiding that **no alert** caught?", e.g. "were we breached by this CVE?", "are other hosts affected?", "is this campaign in our network?".
