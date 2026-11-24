@@ -20,7 +20,7 @@ You help **author and maintain** the security agents in this repository, and you
 
 ## Running agents for testing (Claude Code)
 - Start an agent with `@` → **<name> (agent)** followed by its input, or "Use the <name> subagent for …".
-- When a subagent returns its report, **show the user the complete report verbatim** — copy its final message exactly, from its first line (`<name> vX.Y | result`) through its last line (e.g. `Validation: NOT RUN (chat mode).`), including the JSON block, open questions and improvement proposals. Do not summarise, shorten, reformat or add commentary inside it; put any comments after it. Then, only if asked, compare it with `tests/<name>/README.md`.
+- When a subagent returns its report, **show the user the complete report verbatim** — copy its final message exactly, from its first line (`<name> vX.Y | result`) through its last line (e.g. `Validation: NOT RUN (chat mode).`), including the JSON block, open questions and improvement proposals. Do not summarise, shorten, reformat or add commentary inside it; put any comments after it. Keep the marker line and the `Validation:` line even though they look like status lines. If the subagent's message itself lacks either line, do not add it: write `Note: the agent's output is missing its first line / last line.` **after** the report, so the gap is visible. Then, only if asked, compare it with `tests/<name>/README.md`.
 - Test results and full baseline reports go in `tests/<name>/results.md` and `tests/<name>/baselines/` (only when the user asks).
 - Never edit files during a test run. Save a passing report to `tests/<name>/results.md` only when the user asks.
 - Moving agents to GitHub Copilot: see `docs/COPILOT-MIGRATION.md`.

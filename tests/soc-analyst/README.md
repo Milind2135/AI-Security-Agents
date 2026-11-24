@@ -16,14 +16,14 @@ Fixture files are in `tests/soc-analyst/fixtures/`. Prompts, the expected dispos
 | 6 | "Research CVE-2021-44228" | routed to `vm-triage`, no report |
 | 7 | Malicious attachment quarantined + clean related-activity searches | `MALICIOUS BLOCKED — CLOSE` (row 3) |
 | 8 | Supply-chain worm (Shai-Hulud style): CrowdStrike endpoint detection + Elastic SIEM alert for the same incident | `CONFIRMED INCIDENT — ESCALATE NOW` (row 1), both alerts correlated |
-| 9 | Input `?` (also `help`, `what do you need`) | Usage card printed verbatim, headed `soc-analyst v3.5 \| help`; no preflight, no files read |
+| 9 | Input `?` (also `help`, `what do you need`) | Usage card printed verbatim, headed `soc-analyst v3.6 \| help`; no preflight, no files read |
 | H1–H7 | Hunt mode (`fixtures/hunt-01/`): plan, analysis, coverage rules, too-large file, missing plan, LIVE fallback | See "Hunt mode" in `expected-results.md` |
 
 Checks on every run:
 | Check | Pass condition |
 |---|---|
-| Markers | First line `soc-analyst v3.5 \| preflight` (tool per role and mode named); report starts `soc-analyst v3.5 \| result` and ends `Validation: NOT RUN (chat mode).` |
-| Hunt markers (v3.0) | Preflight names `job: hunt (plan)` or `job: hunt (analysis)` and the data access; plan starts `soc-analyst v3.5 \| hunt plan`, result starts `soc-analyst v3.5 \| hunt result`; both end `Validation: NOT RUN (chat mode).` |
+| Markers | First line `soc-analyst v3.6 \| preflight` (tool per role and mode named); report starts `soc-analyst v3.6 \| result` and ends `Validation: NOT RUN (chat mode).` |
+| Hunt markers (v3.0) | Preflight names `job: hunt (plan)` or `job: hunt (analysis)` and the data access; plan starts `soc-analyst v3.6 \| hunt plan`, result starts `soc-analyst v3.6 \| hunt result`; both end `Validation: NOT RUN (chat mode).` |
 | Hunt volume (v3.0) | Every pass-1 query summarises (count / group by) and ends with a 200-row limit; no raw-dump query for the whole scope; no file over 2,000 rows read in full. |
 | Decision table | Exactly one of the seven dispositions; `Decision row` line names the row and the E# that met its condition; confidence follows the Step 4 definitions; ends with "Analyst decision required". |
 | Evidence log | Every supplied file is an E# (`supplied`); every E# has a status; FAILED/NOT_RUN never treated as no results. |
