@@ -117,6 +117,27 @@ Important:
 - With an agentic or automated attack style, the report reminds you that the attacker can move within minutes, so containment decisions are urgent. You still approve every action.
 - The thresholds (10 addresses, 3 accounts in 10 seconds, etc.) are starting defaults. Give your own in the prompt or `context:` note if they don't fit your environment.
 
+## Speed, robustness and AI keys
+
+**Speed.** Humans are slow; automated attacks are fast. The report shows:
+- the time between steps (a *Gap* column in the timeline);
+- how many accounts or computers one source touched in 1 and 10 minutes;
+- **Compressed timeline: Yes** when the attacker moves through 3 or more attack stages within 15 minutes, or starts hands-on activity within 5 minutes of getting in.
+
+Like the attack style, speed shows **how** an attack ran, not **whether** it is malicious, but it adds an "act quickly" note to the next steps.
+
+**Robustness (hunts).** Each hunt query is labelled by how easily an attacker can dodge it:
+
+| Label | Looks for | Attacker dodges it by |
+|---|---|---|
+| **Fragile** | A file hash, one IP or domain, a tool name | Changing a name or value (seconds) |
+| **Moderate** | A port, browser name, install path | Changing a setting |
+| **Robust** | A behaviour: which program starts which, sequence, speed, data movement | Changing how the attack works (hard) |
+
+The agent adds at least one Moderate or Robust query per hypothesis where your data allows. "Not found" from Fragile queries only means "these exact values were not seen".
+
+**AI keys.** Keys for AI services (e.g. AI model API keys) and AI tool login tokens are treated like passwords: hidden as `[REDACTED]` in reports, and theft or unusual use is a credential incident. Rotating them is a recommendation you approve.
+
 ## Hunt mode
 
 Triage answers "is this alert real?". **Hunt mode** answers "is anything bad hiding that **no alert** caught?", e.g. "were we breached by this CVE?", "are other hosts affected?", "is this campaign in our network?".
