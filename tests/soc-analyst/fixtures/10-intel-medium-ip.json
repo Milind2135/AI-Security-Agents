@@ -1,0 +1,14 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "NDR-3101",
+  "source": "Network detection",
+  "rule": "Connection to threat-intel IP",
+  "severity": "Medium",
+  "alert_time": "2026-11-22T09:41:12Z",
+  "host": "app-srv-04.corp.example.com",
+  "host_ip": "10.40.1.14",
+  "process": {"image": "/usr/bin/java", "parent": "systemd", "user": "svc-app"},
+  "network": {"direction": "outbound", "remote_ip": "198.51.100.77", "remote_port": 443, "protocol": "TCP", "result": "Connected", "bytes_out": 2140, "bytes_in": 5310},
+  "threat_intel_match": {"list": "partner intel feed", "confidence": "Medium", "first_seen": "2026-11-10", "last_seen": "2026-11-20", "reason": "seen in phishing infrastructure"},
+  "other_events": "none supplied"
+}

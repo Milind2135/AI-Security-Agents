@@ -76,6 +76,19 @@ Other agents can use it: e.g. [team-manager](team-manager.md) combines it with o
 - Look up internal IPs, hostnames or user names on the web
 - Deep cloud alert analysis → [cloud-security-analyst](cloud-security-analyst.md); one CVE → [vm-triage](vm-triage.md)
 
+## How it weighs bad addresses and names (indicators)
+
+Alerts and threat-intel lists contain "bad" IP addresses, domains and file hashes (indicators). They are not all equally reliable, so the agent gives each match a level and uses it like this:
+
+| Level | Example | What the agent does with it |
+|---|---|---|
+| **High** | The source rates it High and it points to the attacker only, e.g. the hash of a known malicious file | Enough on its own to call something malicious |
+| **Medium** | "Probably bad", or the source gives no rating | Checks first whether it is normal in your company (other hosts, approved destinations in your `context:` note) or whether the same host also shows malicious behaviour; without that it stays `SUSPICIOUS — INVESTIGATE` |
+| **Low** | A server talked to an AI service, a cloud or CDN address, a VPN or proxy provider | Background information only, **even if the list calls it High**: many normal companies use these |
+| **Stale** | An IP address last reported more than 90 days ago, or past the list's review date | History only: attackers rent addresses and give them back, so someone innocent may use it now |
+
+The agent can lower a level, never raise it. You see the level and the reason in the **Indicators** section of the report (triage) or beside each IOC in the hunt plan. Tip: list your approved destinations (e.g. the AI services your company uses) in the `context:` note so they are recognised as normal.
+
 ## Hunt mode
 
 Triage answers "is this alert real?". **Hunt mode** answers "is anything bad hiding that **no alert** caught?", e.g. "were we breached by this CVE?", "are other hosts affected?", "is this campaign in our network?".
