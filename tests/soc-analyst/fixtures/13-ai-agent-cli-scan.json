@@ -1,0 +1,23 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "EDR-3104",
+  "source": "EDR",
+  "rule": "Network scanner launched on workstation",
+  "severity": "High",
+  "alert_time": "2026-11-23T22:47:10Z",
+  "host": "lap-0611.corp.example.com",
+  "host_ip": "10.50.3.61",
+  "user": "frank",
+  "process_tree": [
+    {"time": "2026-11-23T22:46:58Z", "image": "/Applications/CodeEditor.app/Contents/MacOS/CodeEditor", "pid": 811},
+    {"time": "2026-11-23T22:47:02Z", "image": "/usr/local/bin/ai-agent-cli", "cmd": "ai-agent-cli --auto-approve", "pid": 2290, "parent": 811, "note": "AI coding agent command-line tool"},
+    {"time": "2026-11-23T22:47:09Z", "image": "/usr/local/bin/nmap", "cmd": "nmap -sS -p 22,445,3389 10.50.0.0/16", "pid": 2301, "parent": 2290},
+    {"time": "2026-11-23T22:47:41Z", "image": "/usr/local/bin/brute-login", "cmd": "brute-login --smb 10.50.1.20 --users users.txt --passwords spring.txt", "pid": 2340, "parent": 2290}
+  ],
+  "related_events": [
+    {"time": "2026-11-23T22:47:42.100Z", "event": "SMB logon failure", "target": "10.50.1.20", "account": "adm-backup", "source": "10.50.3.61"},
+    {"time": "2026-11-23T22:47:42.400Z", "event": "SMB logon failure", "target": "10.50.1.20", "account": "adm-sql", "source": "10.50.3.61"},
+    {"time": "2026-11-23T22:47:42.700Z", "event": "SMB logon failure", "target": "10.50.1.20", "account": "adm-web", "source": "10.50.3.61"}
+  ],
+  "other_events": "no successful logons from 10.50.3.61 to 10.50.1.20 in the 2 hours after the alert"
+}

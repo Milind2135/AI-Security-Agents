@@ -1,0 +1,14 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "PRX-3103",
+  "source": "Web proxy",
+  "rule": "Server contacted domain on watch list",
+  "severity": "Medium",
+  "alert_time": "2026-11-23T11:20:03Z",
+  "host": "chat-app-02.corp.example.com",
+  "host_ip": "10.40.2.21",
+  "process": {"image": "/opt/support-bot/bin/support-bot", "user": "svc-supportbot"},
+  "network": {"direction": "outbound", "remote_domain": "ai-model-api.example.com", "remote_port": 443, "result": "Allowed", "requests_last_hour": 412},
+  "threat_intel_match": {"list": "agentic-attack watch list (third party)", "confidence": "High", "reason": "AI model API used by attack agents"},
+  "other_events": "none supplied"
+}
