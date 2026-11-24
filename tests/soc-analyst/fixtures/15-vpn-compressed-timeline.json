@@ -1,0 +1,22 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "SIEM-3106",
+  "source": "SIEM correlation",
+  "rule": "Archive created on file server after new VPN session",
+  "severity": "High",
+  "alert_time": "2026-11-24T01:13:05Z",
+  "user": "grace",
+  "events": [
+    {"time": "2026-11-24T01:01:02Z", "source": "MFA", "event": "push denied", "user": "grace", "ip": "198.51.100.140"},
+    {"time": "2026-11-24T01:01:20Z", "source": "MFA", "event": "push denied", "user": "grace", "ip": "198.51.100.140"},
+    {"time": "2026-11-24T01:01:41Z", "source": "MFA", "event": "push denied", "user": "grace", "ip": "198.51.100.140"},
+    {"time": "2026-11-24T01:01:58Z", "source": "MFA", "event": "push denied", "user": "grace", "ip": "198.51.100.140"},
+    {"time": "2026-11-24T01:02:15Z", "source": "MFA", "event": "push denied", "user": "grace", "ip": "198.51.100.140"},
+    {"time": "2026-11-24T01:02:31Z", "source": "MFA", "event": "push approved", "user": "grace", "ip": "198.51.100.140"},
+    {"time": "2026-11-24T01:02:33Z", "source": "VPN", "event": "session start", "user": "grace", "ip": "198.51.100.140", "country": "first seen for this user", "assigned_ip": "10.70.8.15"},
+    {"time": "2026-11-24T01:05:10Z", "source": "Domain controller", "event": "group membership enumeration (Domain Admins, Backup Operators)", "user": "grace", "from": "10.70.8.15"},
+    {"time": "2026-11-24T01:07:48Z", "source": "File server", "event": "RDP logon", "user": "grace", "host": "file-srv-02", "from": "10.70.8.15"},
+    {"time": "2026-11-24T01:12:59Z", "source": "EDR", "event": "archive created", "host": "file-srv-02", "user": "grace", "file": "D:\\Finance\\q4.7z", "size_mb": 840}
+  ],
+  "context_note": "grace works 08:00-17:00 UTC from the main office; no change ticket for file-srv-02"
+}
