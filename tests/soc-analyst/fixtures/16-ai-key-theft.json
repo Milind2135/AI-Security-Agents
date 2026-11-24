@@ -1,0 +1,25 @@
+{
+  "_note": "SYNTHETIC TEST DATA",
+  "alert_id": "EDR-3107",
+  "source": "EDR + AI provider usage log",
+  "rule": "Credential file read by package install script",
+  "severity": "High",
+  "alert_time": "2026-11-24T09:15:22Z",
+  "host": "dev-ws-23.corp.example.com",
+  "user": "heidi",
+  "process_tree": [
+    {"time": "2026-11-24T09:15:20Z", "image": "/usr/bin/npm", "cmd": "npm install left-pad-utils-example", "pid": 501},
+    {"time": "2026-11-24T09:15:21Z", "image": "/usr/bin/node", "cmd": "node postinstall.js", "pid": 522, "parent": 501}
+  ],
+  "file_reads": [
+    {"time": "2026-11-24T09:15:21Z", "pid": 522, "path": "/home/heidi/.config/ai-agent-cli/credentials.json"},
+    {"time": "2026-11-24T09:15:21Z", "pid": 522, "path": "/home/heidi/.cloud/credentials"}
+  ],
+  "network": [
+    {"time": "2026-11-24T09:15:22Z", "pid": 522, "destination": "203.0.113.80", "port": 443, "bytes_out": 3120, "result": "allowed"}
+  ],
+  "ai_provider_usage_log": [
+    {"time": "2026-11-24T10:02:00Z", "key_id": "key-…7f2", "key_owner": "heidi", "source_ip": "203.0.113.80", "requests_10min": 1840, "normal_requests_10min": "20-60 from 10.80.0.0/16"}
+  ],
+  "secret_sample": "sk-example-REDACT-ME-0000000000"
+}
