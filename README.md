@@ -1,6 +1,6 @@
 # AI Security Agents
 
-Seven AI agents for core security-operations work — CVE research, exposure assessment, alert triage, cloud attack paths, threat modeling and threat intelligence — plus a manager agent that routes requests between them and merges their reports.
+Seven specialist AI agents for core security-operations work — CVE research, exposure assessment, alert triage, cloud attack paths, threat modeling, threat intelligence and third-party (vendor) risk assessment — plus a manager agent that routes requests between them and merges their reports.
 
 Every agent is **analysis-only**, **vendor-neutral** and **evidence-first**: each conclusion cites its source, separates facts from inferences, and states its confidence. One instruction file per agent runs in both **Claude Code** and **GitHub Copilot** (VS Code).
 
@@ -18,6 +18,7 @@ Every agent is **analysis-only**, **vendor-neutral** and **evidence-first**: eac
 | **[cloud-security-analyst](.github/agents/cloud-security-analyst.agent.md)** | Finds real attack paths in cloud IaC, IAM and CSPM data, and triages cloud alerts by correlating them with audit logs. [How to use →](docs/guides/cloud-security-analyst.md) | IaC, IAM policies, CSPM exports — or a cloud alert + audit events | Ranked attack paths, or an alert disposition |
 | **[threat-modeler](.github/agents/threat-modeler.agent.md)** | Builds an evidence-based threat model from code and design documents: a data-flow diagram reviewed by a human, STRIDE threats, validation of existing controls and prioritised risks. [How to use →](docs/guides/threat-modeler.md) | Repo paths, design docs, diagrams | Data-flow diagram, threat register, prioritised controls |
 | **[threat-intel-analyst](.github/agents/threat-intel-analyst.agent.md)** | Profiles a threat actor, campaign or indicator set from public sources: ATT&CK techniques, IOCs, attribution with competing hypotheses, published detection rules and STIX-style output. [How to use →](docs/guides/threat-intel-analyst.md) | An actor, campaign or indicator set | Intelligence brief + STIX-style JSON |
+| **[third-party-risk-analyst](.github/agents/third-party-risk-analyst.agent.md)** | Assesses a vendor across its whole life: tiers it by **inherent risk × criticality**, says which documents and questions to ask for, checks the vendor's answers against evidence (SOC 2, certificates, tests, screening, contract), finds gaps, and prepares a **decision pack** for a named approver; then reassessments, portfolio priorities and exit checks. Rule packs for EU, UK, US and India plus a baseline for non-financial companies; follows your company TPRM policy file. [How to use →](docs/guides/third-party-risk-analyst.md) | A business-owner intake form, then the vendor's questionnaire (Excel, converted) and documents | Plan (tier, scope, document list) → review rounds with follow-up questions → decision pack, plus Excel questionnaire and assessment workbook |
 | **[team-manager](.github/agents/team-manager.agent.md)** | Routes a security request to the right agents or human teams in a safe order, then merges their reports into one summary where every conclusion names its source. [How to use →](docs/guides/team-manager.md) | A security request (and, later, the specialists' reports) | Routed plan, then one combined summary |
 
 ### How they fit together
@@ -33,8 +34,10 @@ flowchart LR
     TM --> CSA[cloud-security-analyst<br/>attack paths]
     TM --> THM[threat-modeler<br/>design review]
     TM --> TI[threat-intel-analyst<br/>actor / campaign]
+    TM --> TPR[third-party-risk-analyst<br/>vendor risk]
+    TI -. vendor breach news .-> TPR
     TI -. related CVEs .-> VT
-    VH & SOC & CSA & THM & TI -- reports --> TM
+    VH & SOC & CSA & THM & TI & TPR -- reports --> TM
     TM --> S([One evidence-traced summary])
 ```
 
@@ -115,6 +118,7 @@ Nothing needs to be installed for the agents themselves: you only need one of th
 | soc-analyst | Triage: alert JSON, log excerpts (JSON, CSV, text), email headers or `.eml`, EDR process tree; optional context notes. Hunt: a hypothesis or an upstream report (JSON, e.g. from threat-intel-analyst), a data-sources note and a context note, then query results (CSV/JSON) | Optional | Lookups of public IPs and domains only; hunt queries are run by you in your SIEM, data lake or (with approval) on endpoints |
 | cloud-security-analyst | **Posture:** IaC (Terraform, CloudFormation, Bicep/ARM, Kubernetes, Helm), CSPM or scanner exports (CSV/JSON), IAM policy JSON. **Triage:** cloud alert JSON plus audit events (CloudTrail, Azure Activity, GCP Audit Logs) | Optional | Public references; analysis uses the supplied files |
 | threat-modeler | A folder of system material: design documents (PDF, Markdown, text), diagrams (PNG, JPG), source code, IaC, API specs (OpenAPI/YAML/JSON), pipeline files; optional filled intake form (Markdown) | Optional | Framework references; analysis uses the supplied code and documents |
+| third-party-risk-analyst | Business-owner intake or change form (Markdown), vendor documents (PDF, Markdown, text), vendor questionnaires converted from Excel with `tools/tprm/tprm.py convert`, screening results, contract draft; optional company policy file and vendor list (CSV) | Optional | Public regulator and standards pages only; never vendor documents or names (registry lookups only with `public_lookups: on`). Excel outputs need Python with `openpyxl` |
 | team-manager | A request in plain words with file paths; optional agent reports or their JSON to combine | None | Reads only the request and the reports you give it |
 
 **File formats:** give files by **path** inside the project folder. Files attached in the chat box reach only the main session, not the agent. Text-based formats (JSON, CSV, YAML, Markdown, code, `.eml`), PDF and PNG/JPG images can be read directly. Save **Word (.docx)**, **Excel (.xlsx)**, **Visio** and **draw.io** files as PDF, CSV or PNG first. Use only synthetic data or data your organisation allows for the AI service you use.
@@ -134,6 +138,7 @@ Every example below uses **synthetic data that is already in this repository**. 
 | cloud-security-analyst | `Use the cloud-security-analyst subagent. mode: triage alert: tests/cloud-security-analyst/fixtures/t1-credential-theft/` |
 | threat-modeler | `Use the threat-modeler subagent. system: tests/threat-modeler/fixtures/01-api-missing-ownership/ intake: skip checkpoint: skip` |
 | threat-intel-analyst | `Use the threat-intel-analyst subagent. subject: Log4Shell exploitation campaigns scope: campaign` |
+| third-party-risk-analyst | `Use the third-party-risk-analyst subagent. type: new vendor: PayFlow Example intake: tests/third-party-risk-analyst/fixtures/v1-payflow/intake-payments.md policy: tests/third-party-risk-analyst/fixtures/policy/policy.md as_of: 2026-11-25` |
 | team-manager | `Use the team-manager subagent. reports: tests/team-manager/fixtures/c1-soc-analyst.json tests/team-manager/fixtures/c1-threat-intel-analyst.json` |
 
 Expected results for each example are in [`tests/<agent>/`](tests). In Claude Code, add `Show me the complete report verbatim.` so the full report is shown rather than a summary.
@@ -150,6 +155,7 @@ Each agent has a short guide: what to give it, the exact prompts, what comes bac
 | cloud-security-analyst | [docs/guides/cloud-security-analyst.md](docs/guides/cloud-security-analyst.md): posture (attack paths) or triage (cloud alert), with export commands |
 | threat-modeler | **[docs/guides/threat-modeler.md](docs/guides/threat-modeler.md)**: from the application team's documents to a full threat model (no installation needed), plus optional Excel, Word and PNG output |
 | threat-intel-analyst | [docs/guides/threat-intel-analyst.md](docs/guides/threat-intel-analyst.md): actor, campaign or indicators, then a cited brief |
+| third-party-risk-analyst | **[docs/guides/third-party-risk-analyst.md](docs/guides/third-party-risk-analyst.md)**: new vendor from intake to decision pack, existing-vendor reviews, vendor lists and exit, with Excel questionnaire and assessment workbook |
 | team-manager | [docs/guides/team-manager.md](docs/guides/team-manager.md): plan which agents to use, run the steps, combine the reports |
 
 ### Getting help: `?` or `help`
@@ -256,20 +262,22 @@ Each agent has **golden tests** in [`tests/<agent>/`](tests) — scenarios, expe
 ## Repository layout
 
 ```text
-.github/agents/     The seven agent instruction files (single source of truth; Copilot loads these)
+.github/agents/     The eight agent instruction files (single source of truth; Copilot loads these)
 .claude/agents/     Claude Code entry points (read-only tools)
 .codex/agents/      OpenAI Codex entry points
 AGENTS.md           Shared rules every agent follows
 docs/               Agent template, per-agent changelogs, Copilot setup, step-by-step guides (docs/guides/), threat-modeler intake form
+templates/tprm/     Third-party risk forms: intake, change, policy template, vendor question bank
 tests/              Golden tests, fixtures and baseline reports
 tools/              threat-modeler-export: turns a threat-model report into diagram, spreadsheet and JSON files
+                    tprm: converts vendor Excel questionnaires and builds the vendor questionnaire, assessment workbook and register
 ```
 
 ## Limitations
 
 - These agents assist analysts; they do not replace them. A person should review every disposition, priority and recommendation before acting on it.
 - Output quality depends on the model, the tools available (page fetch, web search) and the evidence supplied.
-- Agents that read internal data (soc-analyst, vulnerability-hunt, cloud-security-analyst) should only receive what your organisation's data policy allows for the AI service you use.
+- Agents that read internal data (soc-analyst, vulnerability-hunt, cloud-security-analyst, third-party-risk-analyst) should only receive what your organisation's data policy allows for the AI service you use.
 
 ## License
 

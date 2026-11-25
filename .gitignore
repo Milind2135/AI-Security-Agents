@@ -41,6 +41,9 @@ incidents/
 # Real threat-model outputs describe internal architecture: never publish (repo is public)
 docs/threat-models/
 
+# Real vendor assessments, company TPRM policy and vendor lists: never publish (repo is public)
+docs/vendors/
+
 # Local-only agents (not published)
 .github/agents/risk-analyst.agent.md
 .github/agents/detection-engineer.agent.md
