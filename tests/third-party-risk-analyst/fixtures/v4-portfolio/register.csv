@@ -1,0 +1,9 @@
+vendor,known_tier,last_review,services,data,business_owner
+PayFlow Example,,,"Card payments for retail app","card data; 1.8m customers",Digital Payments
+KYC Check Example,3,2025-11-20,"Identity and address verification","identity documents",Lending Operations
+Paper Clip Example Supplies,4,2024-02-01,"Office stationery","none",Facilities
+CloudHost Example,1,2025-06-30,"Core infrastructure hosting","all customer data",Technology
+Payroll Example Services,2,2024-03-15,"Payroll processing","employee data; bank accounts",HR
+Marketing Example Agency,,2023-09-01,"Email campaigns","customer emails; 400k",Marketing
+Courier Example,4,,"Document courier","customer names and addresses",Operations
+Legacy Core Example,,,"Core banking maintenance (privileged access)","all account data",Technology
